@@ -1,0 +1,16 @@
+{
+  "name": "meta-engine",
+  "version": "0.1.0",
+  "description": "",
+  "author": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "build-replica src/main.js -i index.html -t -u",
+    "dev": "build-replica src/main.js -i index.html -t -s"
+  },
+  "keywords": [ "meta", "engine", "game", "gamedev", "2d", "3d", "javascript", "html5" ],
+  "license": "MIT",
+  "dependencies": {
+    "meta-math": "*"
+  }
+}
