@@ -10,6 +10,7 @@ export default class Renderer
 		this.extensions = {};
 
 		this.material = null;
+		this.texture = null;
 		this.emptyMaterial = null;
 		this.emptyTexture = null;
 		this.emptyMatrix = new Matrix4();
@@ -27,7 +28,7 @@ export default class Renderer
 
 		this.emptyMaterial = new DebugMaterial();
 
-		this.setupEnums();
+		
 		this.createEmptyTexture();
 
 		gl.clearColor(0.2, 0.2, 0.2, 1.0);
@@ -39,16 +40,6 @@ export default class Renderer
 		this.extension("EXT_sRGB");
 		this.extension("OES_texture_float");
 		this.extension("OES_texture_float_linear");
-	}
-
-	setupEnums()
-	{
-		const gl = this.gl;
-
-		Texture.NEAREST = gl.NEAREST;
-		Texture.LINEAR = gl.LINEAR;
-		Texture.CLAMP_TO_EDGE = gl.CLAMP_TO_EDGE;
-		Texture.REPEAT = gl.REPEAT;
 	}
 
 	createEmptyTexture()
@@ -222,7 +213,17 @@ export default class Renderer
 		}
 
 		return material;
-	}	
+	}
+
+	bindTexture(texture)
+	{
+		if(this.texture === texture) {
+			return;
+		}
+
+		this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+		this.texture = texture;
+	}
 
 	resize(width, height) {
 		this.projectionMatrix.perspective(0.7853981634, width / height, 0.01, 100.0);	

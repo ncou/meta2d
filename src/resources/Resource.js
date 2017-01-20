@@ -86,6 +86,7 @@ export default class Resource
 		this._loading = value;
 
 		if(value) {
+			this._loaded = false;
 			Engine.ctx.resources.addLoad(this);
 		}
 		else {

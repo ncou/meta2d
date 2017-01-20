@@ -11,10 +11,10 @@ export default class Texture extends Resource
 		this.instance = null;
 		this._width = 0;
 		this._height = 0;
-		this._minFilter = Texture.LINEAR;
-		this._magFilter = Texture.LINEAR;
-		this._wrapS = Texture.CLAMP_TO_EDGE;
-		this._wrapT = Texture.CLAMP_TO_EDGE;
+		this._minFilter = 0;
+		this._magFilter = 0;
+		this._wrapS = 0;
+		this._wrapT = 0;
 
 		super(cfg);
 	}
@@ -35,30 +35,24 @@ export default class Texture extends Resource
 		if(!cfg) { return; }
 		
 		this.loading = true;
-		this.loaded = false;
+
+		if(typeof cfg !== "object") {
+			cfg = { path: cfg };
+		}
 
 		const image = new Image();
 		image.onload = () => {
-			this.handleLoadedImage(image);
+			this.update(image, cfg);
 		};
 		image.onerror = () => {
-			this.handleLoadedImage(null);
+			this.update(null, cfg);
 			this.failed();
 		};
 
-		if(typeof cfg === "string") {
-			image.src = cfg;
-		}
-		else {
-			image.src = cfg.path;
-		}
+		image.src = cfg.path;
 	}
 
-	handleLoadedImage(image) {
-		this.update(image);
-	}
-
-	update(image) 
+	update(image, cfg) 
 	{
 		const gl = Engine.gl;
 
@@ -68,11 +62,23 @@ export default class Texture extends Resource
 
 		const ext = Engine.renderer.extension("EXT_sRGB");
 
-		gl.bindTexture(gl.TEXTURE_2D, this.instance);
+		this._minFilter = cfg.minFilter || Texture.LINEAR;
+		this._magFilter = cfg.magFilter || Texture.LINEAR;
+
+		if(cfg.repeat) {
+			this._wrapS = Texture.REPEAT;
+			this._wrapT = Texture.REPEAT;
+		}
+		else {
+			this._wrapS = cfg.wrapS || Texture.CLAMP_TO_EDGE;
+			this._wrapT = cfg.wrapT || Texture.CLAMP_TO_EDGE;
+		}
+
+		Engine.renderer.bindTexture(this.instance);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		// gl.texImage2D(gl.TEXTURE_2D, 0, ext.SRGB_EXT, ext.SRGB_EXT, gl.UNSIGNED_BYTE, image);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this._magFilter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this._minFilter);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this._magFilter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this._wrapS);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this._wrapT);
 		// gl.generateMipmap(gl.TEXTURE_2D);
@@ -111,6 +117,8 @@ export default class Texture extends Resource
 		if(this._wrapS === flag) { return; }
 		this._wrapS = flag;
 
+		const gl = Engine.gl;
+
 		Engine.renderer.bindTexture(this.instance);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, flag);
 	}
@@ -123,6 +131,8 @@ export default class Texture extends Resource
 	{
 		if(this._wrapT === flag) { return; }
 		this._wrapT = flag;
+
+		const gl = Engine.gl;
 
 		Engine.renderer.bindTexture(this.instance);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, flag);
@@ -137,7 +147,10 @@ export default class Texture extends Resource
 		if(this._minFilter === flag) { return; }
 		this._minFilter = flag;
 
-		
+		const gl = Engine.gl;
+
+		Engine.renderer.bindTexture(this.instance);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, flag);
 	}
 
 	get minFilter() {
@@ -148,9 +161,20 @@ export default class Texture extends Resource
 	{
 		if(this._magFilter === flag) { return; }
 		this._magFilter = flag;
+
+		const gl = Engine.gl;
+
+		Engine.renderer.bindTexture(this.instance);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, flag);
 	}
 
 	get magFilter() {
 		return this._magFilter;
 	}	
 }
+
+const webgl = WebGLRenderingContext;
+Texture.NEAREST = webgl.NEAREST;
+Texture.LINEAR = webgl.LINEAR;
+Texture.CLAMP_TO_EDGE = webgl.CLAMP_TO_EDGE;
+Texture.REPEAT = webgl.REPEAT;
