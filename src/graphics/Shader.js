@@ -20,22 +20,25 @@ export default class Shader extends Resource
 	load(cfg)
 	{
 		this.loaded = false;
-		this.loading = true;
 
 		if(typeof cfg === "string") 
 		{
-			fetchContent(cfg, (src) => {
-				this.src = src;
-			});
+			this.loading = true;
+
+			fetchContent(cfg.path, 
+				(src) => { this.src = src; }, 
+				() => { failed(); });
 		}
 		else if(cfg.src) {
 			this.src = cfg.src;
 		}
 		else if(cfg.path)
 		{
-			fetchContent(cfg.path, (src) => {
-				this.src = src;
-			});
+			this.loading = true;
+
+			fetchContent(cfg.path, 
+				(src) => { this.src = src; }, 
+				() => { failed(); });
 		}
 	}
 
@@ -114,38 +117,23 @@ export default class Shader extends Resource
 
 		this.originalSrc = src;
 		this.analyseImports();
+
+		if(this.imports)
+		{
+			let result = "";
+
+			for(let n = 0; n < this.imports.length; n++) {
+				result += this.imports[n].src + "\n\n";
+			}
+
+			this._src = result + this.originalSrc;
+		}
+		else {
+			this._src = this.originalSrc;
+		}
 	}
 
 	get src() {
 		return this._src;
-	}	
-
-	set loaded(value) 
-	{
-		if(this._loaded === value) { return; }
-		this._loaded = value;
-
-		if(value) 
-		{
-			if(this.imports)
-			{
-				let result = "";
-
-				for(let n = 0; n < this.imports.length; n++) {
-					result += this.imports[n].src + "\n\n";
-				}
-
-				this._src = result + this.originalSrc;
-			}
-			else {
-				this._src = this.originalSrc;
-			}
-		}
-
-		this.emit(value);
-	}
-
-	get loaded() {
-		return this._loaded;
 	}
 }

@@ -1,4 +1,5 @@
-// import Texture from "../graphics/Texture";
+import DebugMaterial from "../materials/DebugMaterial";
+import Texture from "../graphics/Texture";
 import { Matrix4 } from "meta-math";
 
 export default class Renderer
@@ -9,21 +10,24 @@ export default class Renderer
 		this.extensions = {};
 
 		this.material = null;
+		this.emptyMaterial = null;
 		this.emptyTexture = null;
+		this.emptyMatrix = new Matrix4();
 
 		this.projectionMatrix = new Matrix4();
 		this.viewMatrix = new Matrix4();
 		this.modelViewMatrix = new Matrix4();
 		this.normalMatrix = new Matrix4();	
 		this.modelMatrix = null;
-
-		this.setup();
 	}
 
 	setup()
 	{
 		const gl = this.gl;
 
+		this.emptyMaterial = new DebugMaterial();
+
+		this.setupEnums();
 		this.createEmptyTexture();
 
 		gl.clearColor(0.2, 0.2, 0.2, 1.0);
@@ -35,6 +39,16 @@ export default class Renderer
 		this.extension("EXT_sRGB");
 		this.extension("OES_texture_float");
 		this.extension("OES_texture_float_linear");
+	}
+
+	setupEnums()
+	{
+		const gl = this.gl;
+
+		Texture.NEAREST = gl.NEAREST;
+		Texture.LINEAR = gl.LINEAR;
+		Texture.CLAMP_TO_EDGE = gl.CLAMP_TO_EDGE;
+		Texture.REPEAT = gl.REPEAT;
 	}
 
 	createEmptyTexture()
@@ -75,7 +89,7 @@ export default class Renderer
 
 		this.modelMatrix = modelMatrix;
 
-		this.setMaterial(material);
+		drawCmd.material = this.setMaterial(material);
 		this.updateUniforms(drawCmd);
 		this.updateAttribs(drawCmd);
 
@@ -148,7 +162,7 @@ export default class Renderer
 					}
 
 					if(!matrix) {
-						console.warn(`(Renderer.updateUniforms) Invalid FLOAT_MAT4 uniform "${uniform.name}" for: ${material.constructor.name}`);
+						gl.uniformMatrix4fv(uniform.loc, false, this.emptyMatrix.m);
 					}
 					else {
 						gl.uniformMatrix4fv(uniform.loc, false, matrix.m);
@@ -179,6 +193,10 @@ export default class Renderer
 
 	setMaterial(material)
 	{
+		if(!material.loaded) {
+			material = this.emptyMaterial;
+		}
+
 		const gl = this.gl;
 		const currNumAttribs = this.material ? this.material.numAttribs : 0;
 		const newNumAttribs = material.numAttribs;
@@ -202,6 +220,8 @@ export default class Renderer
 		if(material.needUpdate) {
 			material.update();
 		}
+
+		return material;
 	}	
 
 	resize(width, height) {

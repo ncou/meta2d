@@ -34,23 +34,6 @@ export default class ResourceManager
 		}
 	}
 
-	handleResourceEvent(event, resource) 
-	{
-		if(!this.loadingCfg) 
-		{
-			this.numToLoad--;
-			if(this.numToLoad < 0) {
-				console.error("(ResourceManager.handleResourceEvent) Negative `numToLoad` value - this should not happen");
-			}
-		}
-
-		if(this.numToLoad === 0 && !this.loadingCfg) 
-		{
-			this.loading = false;
-			this.loaded = true;
-		}
-	}
-
 	add(resource) 
 	{
 		if(!resource) {
@@ -111,6 +94,27 @@ export default class ResourceManager
 
 		for(let n = 0; n < buffer.length; n++) {
 			buffer[n](event, this);
+		}
+	}
+
+	addLoad(resource) {
+		this.numToLoad++;
+	}
+
+	removeLoad(resource)
+	{
+		if(!this.loadingCfg) 
+		{
+			this.numToLoad--;
+			if(this.numToLoad < 0) {
+				console.error("(ResourceManager.handleResourceEvent) Negative `numToLoad` value - this should not happen");
+			}
+		}
+
+		if(this.numToLoad === 0 && !this.loadingCfg) 
+		{
+			this.loading = false;
+			this.loaded = true;
 		}
 	}
 
@@ -176,7 +180,6 @@ function register(mgr, cfg)
 		}
 
 		resource.id = key;
-		resource.subscribe(mgr, mgr.handleResourceEvent);
 		map[key] = resource;
 	}	
 }
@@ -197,8 +200,5 @@ function load(mgr, cfg)
 		}
 
 		resource.load(resourceCfg);
-		if(!resource.loaded) {
-			mgr.numToLoad++;
-		}
 	}
 }

@@ -1,3 +1,4 @@
+import Engine from "../Engine";
 
 function Subscriber(owner, func)
 {
@@ -12,6 +13,7 @@ export default class Resource
 		this.id = null;
 		this.subscribers = [];
 		this._loaded = false;
+		this._loading = false;
 
 		if(cfg) {
 			this.load(cfg);
@@ -44,6 +46,15 @@ export default class Resource
 		}
 	}
 
+	failed() 
+	{
+		this._loaded = false;
+		
+		this.emit("failed");
+		
+		this.loading = false;
+	}
+
 	set loaded(value) 
 	{
 		if(this._loaded === value) { return; }
@@ -51,6 +62,8 @@ export default class Resource
 
 		if(value) 
 		{
+			this.loading = false;
+
 			if(this._loaded) {
 				this.emit("update");
 			}
@@ -65,5 +78,22 @@ export default class Resource
 
 	get loaded() {
 		return this._loaded;
+	}
+
+	set loading(value) 
+	{
+		if(this._loading === value) { return; }
+		this._loading = value;
+
+		if(value) {
+			Engine.ctx.resources.addLoad(this);
+		}
+		else {
+			Engine.ctx.resources.removeLoad(this);
+		}
+	}
+
+	get loading() {
+		return this._loading;
 	}
 }

@@ -75,7 +75,7 @@ export default class Material extends Resource
 
 		if(cfg.vertexShader) 
 		{
-			newVertexShader = Engine.ctx.getResource(cfg.vertexShader);
+			newVertexShader = Engine.ctx.resource(cfg.vertexShader);
 			if(!newVertexShader) {
 				console.log("(Material.load) Could not find vertexShader: " + cfg.vertexShader);
 				return;
@@ -92,7 +92,7 @@ export default class Material extends Resource
 
 		if(cfg.fragmentShader) 
 		{
-			newFragmentShader = Engine.ctx.getResource(cfg.fragmentShader);
+			newFragmentShader = Engine.ctx.resource(cfg.fragmentShader);
 			if(!newFragmentShader) {
 				console.log("(Material.load) Could not find fragmentShader: " + cfg.fragmentShader);
 				return;
@@ -131,7 +131,6 @@ export default class Material extends Resource
 
 		if(this.vertexShader.loaded && this.fragmentShader.loaded) {
 			this.compile();
-			this.loaded = true;
 		}
 		else {
 			this.loading = true;
@@ -152,12 +151,14 @@ export default class Material extends Resource
 
 		this.vertexShaderInstance = this.compileShader(gl.VERTEX_SHADER, this.vertexShader);
 		if(!this.vertexShaderInstance) {
+			this.failed();
 			return false;
 		}
 
 		this.fragmentShaderInstance = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
 		if(!this.fragmentShaderInstance) {
 			this.cleanup();
+			this.failed();
 			return false;
 		}
 
@@ -170,6 +171,7 @@ export default class Material extends Resource
 		if(!success) {
 			console.warn("(Material.compile) Program failed to link: " + gl.getProgramInfoLog(this.program));
 			this.cleanup();
+			this.failed();
 			return false;
 		}
 
@@ -243,13 +245,17 @@ export default class Material extends Resource
 
 	update()
 	{
+		if(!this.loaded) {
+			return;
+		}
+
 		const gl = Engine.gl;
 
 		for(let n = 0; n < this.uniformData.length; n++) 
 		{
 			const uniform = this.uniformData[n];
 			let value = this._uniforms[uniform.name];
-			if(!value) { continue;}
+			if(!value) { continue; }
 
 			switch(uniform.type)
 			{

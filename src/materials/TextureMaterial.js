@@ -14,26 +14,5 @@ export default class TextureMaterial extends Material
 	constructor(uniforms) 
 	{
 		super(params);
-
-		if(uniforms) {
-			this.uniforms = uniforms;
-		}
-	}
-
-	set map(texture)
-	{
-		if(typeof texture === "string") {
-			const textureName = texture;
-			texture = Engine.ctx.getResource(textureName);
-			if(!texture) {
-				console.warn("(TextureMaterial.map) No such texture found: " + textureName);
-			}
-		}
-
-		this.uniforms.map = texture;
-	}
-
-	get map() {
-		return this.uniforms.map;
 	}
 }
