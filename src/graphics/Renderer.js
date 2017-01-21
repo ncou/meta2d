@@ -1,6 +1,6 @@
 import DebugMaterial from "../materials/DebugMaterial";
 import Texture from "../graphics/Texture";
-import { Matrix4 } from "meta-math";
+import { Vector2, Matrix4 } from "meta-math";
 
 export default class Renderer
 {
@@ -14,6 +14,7 @@ export default class Renderer
 		this.emptyMaterial = null;
 		this.emptyTexture = null;
 		this.emptyMatrix = new Matrix4();
+		this.emptyVec2 = new Vector2();
 
 		this.projectionMatrix = new Matrix4();
 		this.viewMatrix = new Matrix4();
@@ -27,14 +28,12 @@ export default class Renderer
 		const gl = this.gl;
 
 		this.emptyMaterial = new DebugMaterial();
-
-		
 		this.createEmptyTexture();
 
 		gl.clearColor(0.2, 0.2, 0.2, 1.0);
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);	
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
 		// extensions:
 		this.extension("EXT_sRGB");
@@ -45,7 +44,6 @@ export default class Renderer
 	createEmptyTexture()
 	{
 		const gl = this.gl;
-
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d");
 		canvas.width = 16;
@@ -157,6 +155,17 @@ export default class Renderer
 					}
 					else {
 						gl.uniformMatrix4fv(uniform.loc, false, matrix.m);
+					}
+				} break;
+
+				case gl.FLOAT_VEC2:
+				{
+					const vec2 = material._uniforms[uniform.name];
+					if(!vec2) {
+						gl.uniform2fv(uniform.loc, this.emptyVec2.v);
+					}
+					else {
+						gl.uniform2fv(uniform.loc, vec2.v);
 					}
 				} break;
 
