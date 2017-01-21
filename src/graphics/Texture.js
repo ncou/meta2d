@@ -83,6 +83,15 @@ export default class Texture extends Resource
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this._wrapT);
 		// gl.generateMipmap(gl.TEXTURE_2D);
 
+		if(image) {
+			this._width = image.width;
+			this._height = image.height;
+		}
+		else {
+			this._width = 0;
+			this._height = 0;
+		}
+
 		this.loaded = true;
 	}
 
@@ -170,7 +179,7 @@ export default class Texture extends Resource
 
 	get magFilter() {
 		return this._magFilter;
-	}	
+	}
 }
 
 const webgl = WebGLRenderingContext;

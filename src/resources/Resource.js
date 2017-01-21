@@ -57,22 +57,28 @@ export default class Resource
 
 	set loaded(value) 
 	{
-		if(this._loaded === value) { return; }
+		const prevLoaded = this._loaded;
 		this._loaded = value;
 
-		if(value) 
+		if(value)
 		{
-			this.loading = false;
-
-			if(this._loaded) {
+			if(prevLoaded) {
 				this.emit("update");
 			}
 			else {
-				this.emit("load");
+				this.emit("loaded");
+			}
+
+			if(this._loading) {
+				this._loading = false;
+				Engine.ctx.resources.removeLoad(this);
 			}
 		}
-		else {
-			this.emit("unload");
+		else 
+		{
+			if(prevLoaded) {
+				this.emit("unload");
+			}
 		}
 	}
 
@@ -85,11 +91,27 @@ export default class Resource
 		if(this._loading === value) { return; }
 		this._loading = value;
 
-		if(value) {
-			this._loaded = false;
+		if(value) 
+		{
+			if(this._loaded) {
+				this._loaded = false;
+				this.emit("unload");
+			}
+
 			Engine.ctx.resources.addLoad(this);
 		}
-		else {
+		else 
+		{
+			const prevLoaded = this._loaded;
+			this._loaded = false; 
+
+			if(prevLoaded) {
+				this.emit("update");
+			}
+			else {
+				this.emit("loaded");
+			}
+
 			Engine.ctx.resources.removeLoad(this);
 		}
 	}
