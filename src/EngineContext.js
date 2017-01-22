@@ -1,9 +1,10 @@
+import Device from "./Device";
 import Engine from "./Engine";
 import Time from "./Time";
 import EngineWindow from "./EngineWindow";
 import ResourceManager from "./resources/ResourceManager";
 import Renderer from "./graphics/Renderer";
-import Input from "./input";
+import Input from "./Input";
 import loadCoreShaders from "../shaders/loader";
 
 class EngineContext
@@ -15,12 +16,14 @@ class EngineContext
 
 		this.cfg = cfg;
 		this.window = new EngineWindow(cfg.settings);
-		this.window.on("resize", this.handleWindowResize.bind(this));
 		this.gl = this.window.gl;
 
+		this.input = new Input();
 		this.time = new Time();
 		this.renderer = new Renderer(this.gl);
 		this.resources = new ResourceManager();
+
+		Device.on("resize", this.handleWindowResize.bind(this));
 
 		this.handleWindowResize(this.window);
 

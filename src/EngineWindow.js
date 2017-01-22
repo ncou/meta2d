@@ -12,32 +12,11 @@ export default class EngineWindow
 		this.gl = null;
 		this.listeners = {};
 
-		this.domListeners = {
-			resize: () => { this.updateViewport(); },
-			focus: () => { this.onFocus(true); },
-			blur: () => { this.onFocus(false); },
-			visibilityChange: () => { this.onVisibilityChange(); },
-			fullscreen: () => { this.onFullscreenChange(); }
-		};
-
 		this.create();
     }
 
 	create()
 	{
-		window.addEventListener("resize", this.domListeners.resize, false);
-		window.addEventListener("orientationchange", this.domListeners.resize, false);
-
-		// // Page Visibility API:
-		// if(device.support.hidden) {
-		// 	document.addEventListener(device.visibilityChange, this.listeners.visibilityChange);
-		// }
-
-		// // Fullscreen API:
-		// if(device.support.fullscreen) {
-		// 	document.addEventListener(device.fullscreenChange, this.listeners.fullscreen);
-		// }
-
 		if(this.settings.canvas) 
 		{
 			this.canvas = this.settings.canvas;
@@ -58,26 +37,12 @@ export default class EngineWindow
 							-webkit-user-select: none; 
 							zoom: 1;`;
 		this.canvas.style = canvasStyle;
+		this.canvas.addEventListener("webglcontextlost", this.onContextLost.bind());	
+		this.canvas.addEventListener("webglcontextrestored", this.onContextRestored.bind());	
 
 		this.gl = this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl");
 
 		this.updateViewport();
-	}
-
-	destroy()
-	{
-		window.removeEventListener("resize", this.listeners.resize);
-		window.removeEventListener("orientationchange", this.listeners.resize);
-
-		// // Page Visibility API:
-		// if(device.support.hidden) {
-		// 	document.removeEventListener(device.visibilityChange, this.listeners.visibilityChange);
-		// }
-
-		// // Fullscreen API:
-		// if(device.support.fullscreen) {
-		// 	document.removeEventListener(device.fullscreenChange, this.listeners.fullscreen);
-		// }
 	}
 
 	updateViewport()
@@ -134,19 +99,11 @@ export default class EngineWindow
 		}
 	}
 
-	onFullscreenChange()
-	{
-		const fullscreenElement = device.fullscreenElement();
-		this.fullscreen = !!fullscreenElement;
-
-		this.emit("fullscreen", device.fullscreen);
-	}
-
-	onCtxLost() {
+	onContextLost() {
 		console.log("(Context lost)");
 	}
 
-	onCtxRestored() {
+	onContextRestored() {
 		console.log("(Context restored)");
 	}
 

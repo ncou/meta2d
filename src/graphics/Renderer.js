@@ -1,5 +1,6 @@
 import DebugMaterial from "../materials/DebugMaterial";
 import Texture from "../graphics/Texture";
+// import Camera from "../scene/Camera";
 import { Vector2, Matrix4 } from "meta-math";
 
 export default class Renderer
@@ -21,6 +22,8 @@ export default class Renderer
 		this.modelViewMatrix = new Matrix4();
 		this.normalMatrix = new Matrix4();	
 		this.modelMatrix = null;
+
+		// this.camera = new Camera();
 	}
 
 	setup()
@@ -34,6 +37,8 @@ export default class Renderer
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);	
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 		// extensions:
 		this.extension("EXT_sRGB");

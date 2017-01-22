@@ -1,3 +1,4 @@
+import Device from "./src/Device";
 import EngineContext from "./src/EngineContext";
 import Engine from "./src/Engine";
 import DrawCommand from "./src/graphics/DrawCommand";
@@ -12,7 +13,9 @@ import Cubemap from "./src/resources/Cubemap";
 import HDR from "./src/resources/HDR";
 import Content from "./src/resources/Content";
 import Box from "./src/mesh/Box";
+import Node from "./src/scene/Node";
+import Camera from "./src/scene/Camera";
 
-export default { Engine, DrawCommand, Mesh, Texture, Material, 
+export default { Device, Engine, DrawCommand, Mesh, Texture, Material, 
 	BasicMaterial, DebugMaterial, TextureMaterial, 
 	ResourceManager, Cubemap, HDR, Content, Box };
