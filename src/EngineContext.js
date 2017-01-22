@@ -4,8 +4,11 @@ import Time from "./Time";
 import EngineWindow from "./EngineWindow";
 import ResourceManager from "./resources/ResourceManager";
 import Renderer from "./graphics/Renderer";
+import Scene from "./scene/Camera";
 import Input from "./Input";
 import loadCoreShaders from "../shaders/loader";
+
+let engineId = 0;
 
 class EngineContext
 {
@@ -14,10 +17,12 @@ class EngineContext
 		cfg = cfg || {};
 		cfg.settings = cfg.settings || {};
 
+		this.id = this.engineId++;
 		this.cfg = cfg;
 		this.window = new EngineWindow(cfg.settings);
 		this.gl = this.window.gl;
 
+		this.camera = new Camera();
 		this.input = new Input();
 		this.time = new Time();
 		this.renderer = new Renderer(this.gl);
@@ -27,9 +32,7 @@ class EngineContext
 
 		this.handleWindowResize(this.window);
 
-		Engine.ctx = this;
-		Engine.gl = this.gl;
-		Engine.renderer = this.renderer;
+		this.activateEngineContext();
 
 		this.setup();
 	}
@@ -58,9 +61,7 @@ class EngineContext
 
 	ready() 
 	{
-		Engine.ctx = this;
-		Engine.gl = this.gl;
-		Engine.renderer = this.renderer;
+		this.activateEngineContext();
 
 		if(this.cfg.ready) {
 			this.cfg.ready();
@@ -77,9 +78,7 @@ class EngineContext
 	{
 		this.time.start();
 
-		Engine.ctx = this;
-		Engine.gl = this.gl;
-		Engine.renderer = this.renderer;
+		this.activateEngineContext();
 
 		if(this.cfg.update) {
 			this.cfg.update(this.time.deltaF);
@@ -100,6 +99,17 @@ class EngineContext
 	{
 		const resource = this.resources.map[id];
 		return resource || null;
+	}
+
+	activateEngineContext()
+	{
+		if(Engine.id === this.id) { return; }
+
+		Engine.id = this.id;
+		Engine.ctx = this;
+		Engine.gl = this.gl;
+		Engine.renderer = this.renderer;
+		Engine.camera = this.camera;		
 	}
 }
 

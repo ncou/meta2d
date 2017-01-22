@@ -7,7 +7,9 @@ export default
 		const instance = new this.clsPtr(cfg);
 	},
 
+	id: -1,
 	ctx: null,
 	gl: null,
-	renderer: null
+	renderer: null,
+	camera: null
 }
