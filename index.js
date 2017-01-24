@@ -8,7 +8,7 @@ import Material from "./src/materials/Material";
 import BasicMaterial from "./src/materials/BasicMaterial";
 import DebugMaterial from "./src/materials/DebugMaterial";
 import TextureMaterial from "./src/materials/TextureMaterial";
-import ResourceManager from "./src/resources/Resourcemanager";
+import ResourceManager from "./src/resources/ResourceManager";
 import Cubemap from "./src/resources/Cubemap";
 import HDR from "./src/resources/HDR";
 import Content from "./src/resources/Content";

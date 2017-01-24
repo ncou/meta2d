@@ -4,7 +4,7 @@ import Time from "./Time";
 import EngineWindow from "./EngineWindow";
 import ResourceManager from "./resources/ResourceManager";
 import Renderer from "./graphics/Renderer";
-import Scene from "./scene/Camera";
+import Camera from "./scene/Camera";
 import Input from "./Input";
 import loadCoreShaders from "../shaders/loader";
 
@@ -17,9 +17,10 @@ class EngineContext
 		cfg = cfg || {};
 		cfg.settings = cfg.settings || {};
 
-		this.id = this.engineId++;
+		this.id = engineId++;
 		this.cfg = cfg;
 		this.window = new EngineWindow(cfg.settings);
+		this.window.on("resize", this.handleWindowResize.bind(this));
 		this.gl = this.window.gl;
 
 		this.camera = new Camera();
@@ -27,8 +28,6 @@ class EngineContext
 		this.time = new Time();
 		this.renderer = new Renderer(this.gl);
 		this.resources = new ResourceManager();
-
-		Device.on("resize", this.handleWindowResize.bind(this));
 
 		this.handleWindowResize(this.window);
 
@@ -70,8 +69,8 @@ class EngineContext
 		this.renderFunc();
 	}
 
-	handleWindowResize(window) {
-		this.renderer.resize(window.width, window.height);
+	handleWindowResize() {
+		this.renderer.resize(this.window.width, this.window.height);
 	}
 
 	render()
@@ -108,8 +107,10 @@ class EngineContext
 		Engine.id = this.id;
 		Engine.ctx = this;
 		Engine.gl = this.gl;
+		Engine.window = this.window;
 		Engine.renderer = this.renderer;
-		Engine.camera = this.camera;		
+		Engine.input = this.input;	
+		Engine.camera = this.camera;
 	}
 }
 

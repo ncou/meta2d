@@ -10,6 +10,8 @@ export default
 	id: -1,
 	ctx: null,
 	gl: null,
+	window: null,
 	renderer: null,
+	input: null,
 	camera: null
 }

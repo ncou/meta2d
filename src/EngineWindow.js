@@ -1,3 +1,4 @@
+import Device from "./Device";
 
 export default class EngineWindow
 {
@@ -5,12 +6,18 @@ export default class EngineWindow
     {
 		this.settings = settings || {};
 
-		this.width = 0;
-		this.height = 0;
 		this.canvas = null;
 		this.canvasParent = null;
 		this.gl = null;
 		this.listeners = {};
+
+		this.width = 0;
+		this.height = 0;
+		this.scaleX = 1;
+		this.scaleY = 1;
+		this.offsetLeft = 0;
+		this.offsetTop = 0;
+		this.ratio = 1;
 
 		this.create();
     }
@@ -43,6 +50,8 @@ export default class EngineWindow
 		this.gl = this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl");
 
 		this.updateViewport();
+
+		Device.on("resize", this.updateViewport.bind(this));
 	}
 
 	updateViewport()
@@ -58,14 +67,18 @@ export default class EngineWindow
 			parentHeight = this.canvasParent.clientHeight;
 		}
 
+		const devicePixelRatio = window.devicePixelRatio || 1;
+		this.ratio = devicePixelRatio / Device.backingStoreRatio;
+
+		parentWidth = Math.ceil(parentWidth * this.ratio);
+		parentHeight = Math.ceil(parentHeight * this.ratio);
+
 		this.width = this.settings.width || parentWidth;
 		this.height = this.settings.height || parentHeight;
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
-		this.canvas.style.width = this.canvas.width + "px";
-		this.canvas.style.height = this.canvas.height + "px";
-
-		this.gl.viewport(0, 0, this.width, this.height);	
+		this.canvas.style.width = this.width + "px";
+		this.canvas.style.height = this.height + "px";
 
 		this.emit("resize");
 	}
@@ -75,6 +88,11 @@ export default class EngineWindow
 		this.settings.width = width;
 		this.settings.height = height;
 		this.updateViewport();
+	}
+
+	scale(width, height)
+	{
+
 	}
 
 	onFocus(value)
