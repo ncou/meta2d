@@ -1,3 +1,5 @@
+import Engine from "../Engine";
+import Input from "../Input";
 import Node from "./Node";
 import { Matrix4 } from "meta-math";
 
@@ -50,6 +52,42 @@ export default class Camera extends Node
 
 	get zoomRatio() {
 		return 1.0;
+	}
+
+	set draggable(value)
+	{
+		if(this._draggable === value) { return; }
+		this._draggable = value;
+
+		if(value) {
+			Engine.input.on("down", this.handleInputDown, this);
+			Engine.input.on("up", this.handleInputUp, this);
+			Engine.input.on("move", this.handleInputMove, this);
+		}
+		else {
+			Engine.input.off("down", this.handleInputDown, this);
+			Engine.input.off("up", this.handleInputUp, this);
+			Engine.input.off("move", this.handleInputMove, this);
+		}
+	}
+
+	get draggable() {
+		return this._draggable;
+	}
+
+	handleInputDown(event) {
+		this._dragging = true;
+	}
+
+	handleInputUp(event) {
+		this._dragging = false;
+	}
+
+	handleInputMove(event) 
+	{
+		if(this._dragging) {
+			this.move(event.deltaX, event.deltaY, 0.0);
+		}
 	}
 }
 

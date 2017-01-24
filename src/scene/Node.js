@@ -18,6 +18,18 @@ export default class Node
 		this.children = null;
 	}
 
+	setPosition(x, y, z) {
+		this._position.set(x, y, z || 0.0)
+	}
+
+	move(x, y, z) {
+		this._position.addValues(x, y, z);
+	}
+
+	get position() {
+		return this._position;
+	}
+
 	updateTransform()
 	{
 		this.needUpdateTransform = false;
