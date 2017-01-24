@@ -5,6 +5,11 @@ const numKeys = 256;
 const numInputs = 10;
 const numTotalKeys = numKeys + numInputs + 1;
 
+function Subscriber(owner, func) {
+	this.owner = owner;
+	this.func = func;
+}
+
 export default class Input
 {
 	constructor()
@@ -214,8 +219,8 @@ export default class Input
 					break;
 			}
 			
-			const screenX = ((touch.pageX - wnd.offsetLeft) * wnd.scaleX) * wnd.ratio;
-			const screenY = ((touch.pageY - wnd.offsetTop) * wnd.scaleY) * wnd.ratio;
+			const screenX = ((touch.pageX - wnd.offsetLeft) * wnd.scaleX);
+			const screenY = ((touch.pageY - wnd.offsetTop) * wnd.scaleY);
 			const x = (screenX * camera.zoomRatio) + camera.x | 0;
 			const y = (screenY * camera.zoomRatio) + camera.y | 0;
 
@@ -229,15 +234,19 @@ export default class Input
 			inputEvent.y = y;
 			inputEvent.keyCode = keyCode;
 
-			if(id === 0) {
+			if(id === 0) 
+			{
 				this.prevX = this.x;
 				this.prevY = this.y;
 				this.prevScreenX = this.screenX;
-				this.prevScreenY = this.screenX;	
+				this.prevScreenY = this.screenY;	
 				this.x = x;
 				this.y = y;
 				this.screenX = screenX;
 				this.screenY = screenY;
+
+				inputEvent.deltaX = this.prevScreenX - this.screenX;
+				inputEvent.deltaY = this.prevScreenY - this.screenY;
 			}
 
 			switch(eventType)
@@ -258,28 +267,34 @@ export default class Input
 		return this.inputs[keyCode];
 	}
 
-	on(event, func)
+	on(event, func, owner)
 	{
+		const sub = new Subscriber(owner, func);
+
 		let buffer = this.listeners[event];
 		if(buffer) {
-			buffer.push(func);
+			buffer.push(sub);
 		}
 		else {
-			buffer = [ func ];
+			buffer = [ sub ];
 			this.listeners[event] = buffer;
 		}
 	}
 
-	off(event, func)
+	off(event, func, owner)
 	{
 		const buffer = this.listeners[event];
 		if(!buffer) { return; }
 
-		const index = buffer.indexOf(func);
-		if(index === -1) { return; }
-
-		buffer[index] = buffer[buffer.length - 1];
-		buffer.pop();
+		for(let n = 0; n < buffer.length; n++)
+		{
+			const sub = buffer[n];
+			if(sub.func === func && sub.owner === owner) {
+				buffer[n] = buffer[buffer.length - 1];
+				buffer.pop();
+				return;
+			} 
+		}
 	}
 
 	emit(event, arg)
@@ -288,7 +303,8 @@ export default class Input
 		if(!buffer) { return; }
 
 		for(let n = 0; n < buffer.length; n++) {
-			buffer[n](arg);
+			const sub = buffer[n];
+			sub.func.call(sub.owner, arg);
 		}
 	}	
 
