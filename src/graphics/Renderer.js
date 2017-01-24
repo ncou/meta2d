@@ -240,6 +240,7 @@ export default class Renderer
 	}
 
 	resize(width, height) {
+		this.gl.viewport(0, 0, width, height);
 		this.projectionMatrix.perspective(0.7853981634, width / height, 0.01, 100.0);	
 	}
 
