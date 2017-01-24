@@ -1,7 +1,7 @@
 import DebugMaterial from "../materials/DebugMaterial";
 import Texture from "../graphics/Texture";
 // import Camera from "../scene/Camera";
-import { Vector2, Matrix4 } from "meta-math";
+import { Vector2, Vector3, Matrix4 } from "meta-math";
 
 export default class Renderer
 {
@@ -16,6 +16,7 @@ export default class Renderer
 		this.emptyTexture = null;
 		this.emptyMatrix = new Matrix4();
 		this.emptyVec2 = new Vector2();
+		this.emptyVec3 = new Vector3();
 
 		this.projectionMatrix = new Matrix4();
 		this.viewMatrix = new Matrix4();
@@ -170,7 +171,18 @@ export default class Renderer
 						gl.uniform2fv(uniform.loc, this.emptyVec2.v);
 					}
 					else {
-						gl.uniform2fv(uniform.loc, vec2.v);
+						gl.uniform2fv(uniform.loc, vec2.toFloat32Array());
+					}
+				} break;
+
+				case gl.FLOAT_VEC3:
+				{
+					const vec3 = material._uniforms[uniform.name];
+					if(!vec3) {
+						gl.uniform3fv(uniform.loc, this.emptyVec3.v);
+					}
+					else {
+						gl.uniform3fv(uniform.loc, vec3.toFloat32Array());
 					}
 				} break;
 
