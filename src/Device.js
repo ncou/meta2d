@@ -22,6 +22,7 @@ const Device =
 	portrait: false,
 	visible: true,
 	audioFormats: [],
+	backingStoreRatio: 1,
 
 	set fullscreen(element) 
 	{
@@ -110,6 +111,7 @@ function load()
 	checkMobileAgent();
 	checkCanvas();
 	checkWebGL();
+	checkBackingStoreRatio();
 	checkAudioFormats();
 	checkAudioAPI();
 	checkPageVisibility();
@@ -188,6 +190,21 @@ function checkBrowser()
 
 function checkMobileAgent() {
 	Device.mobile = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+}
+
+function checkBackingStoreRatio() 
+{
+	if(!Device.supports.canvas) { return; }
+
+	const canvas = document.createElement("canvas");
+	const ctx = canvas.getContext("2d");
+
+	if(ctx.backingStorePixelRatio !== undefined) {
+		Device.backingStoreRatio = ctx.backingStorePixelRatio;
+	}
+	else if(ctx[Device.vendor + "BackingStorePixelRatio"]) {
+		Device.backingStoreRatio = ctx[Device.vendor + "BackingStorePixelRatio"];
+	}
 }
 
 function checkCanvas() {
@@ -428,7 +445,7 @@ function addEventListeners()
 
 function onResize(domEvent)
 {
-	emit("resize", null);
+	emit("resize", window);
 
 	if(window.innerHeight > window.innerWidth) 
 	{
@@ -445,7 +462,7 @@ function onResize(domEvent)
 
 function onOrientationChange(domEvent)
 {
-	emit("resize", null);
+	emit("resize", window);
 
 	if(window.innerHeight > window.innerWidth) {
 		Device.portrait = true;
