@@ -60,7 +60,7 @@ export default class Texture extends Resource
 			this.instance = gl.createTexture();
 		}
 
-		const ext = Engine.renderer.extension("EXT_sRGB");
+		// const ext = Engine.renderer.extension("EXT_sRGB");
 
 		this._minFilter = cfg.minFilter || Texture.LINEAR;
 		this._magFilter = cfg.magFilter || Texture.LINEAR;

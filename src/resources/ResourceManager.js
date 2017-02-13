@@ -149,7 +149,7 @@ function register(mgr, cfg)
 {
 	const map = mgr.map;
 
-	for(const key in cfg)
+	for(let key in cfg)
 	{
 		if(map[key]) {
 			console.warn("(ResourceManager::register) There is already resource with ID: " + key);
@@ -188,7 +188,7 @@ function load(mgr, cfg)
 {
 	const map = mgr.map;
 
-	for(const key in cfg)
+	for(let key in cfg)
 	{
 		const resourceCfg = cfg[key];
 		if(!resourceCfg) { continue; }

@@ -34,10 +34,11 @@ export default class Renderer
 		this.emptyMaterial = new DebugMaterial();
 		this.createEmptyTexture();
 
-		gl.clearColor(0.2, 0.2, 0.2, 1.0);
+		gl.clearColor(0.3, 0.3, 0.3, 1.0);
 		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);	
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -52,8 +53,8 @@ export default class Renderer
 		const gl = this.gl;
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d");
-		canvas.width = 16;
-		canvas.height = 16;
+		canvas.width = 4;
+		canvas.height = 4;
 		ctx.fillStyle = "#00ff00";
 		ctx.fillRect(0, 0, 16, 16);
 		this.emptyTexture = gl.createTexture();
@@ -62,7 +63,7 @@ export default class Renderer
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);		
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	}
 
 	update(tDelta)

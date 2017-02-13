@@ -78,7 +78,7 @@ export default class Input
 
 		if(!this.enable) { return; }
 
-		const keyCode = event.keyCode;
+		const keyCode = domEvent.keyCode;
 
 		this.metaPressed = false;
 		this.inputs[keyCode] = 0;

@@ -45,7 +45,7 @@ export default class Cubemap extends Resource
 		}
 		else 
 		{
-			for(const key in cfg) {
+			for(let key in cfg) {
 				this[key] = cfg[key];
 			}
 		}
