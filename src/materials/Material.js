@@ -86,7 +86,7 @@ export default class Material extends Resource
 			newVertexShader.src = cfg.vertexSrc;
 		}
 		else if(!newVertexShader) {
-			console.log("(Material.load) Missing vertexShader from: " + this.id);
+			console.log("(Material.load) Missing vertexShader in: " + this.id);
 			return;
 		}
 
@@ -103,7 +103,7 @@ export default class Material extends Resource
 			newFragmentShader.src = cfg.fragmentSrc;
 		}
 		else if(!newFragmentShader) {
-			console.log("(Material.load) Missing vertexShader from: " + this.id);
+			console.log("(Material.load) Missing vertexShader in: " + this.id);
 			return;
 		}		
 

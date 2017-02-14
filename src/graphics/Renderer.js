@@ -75,6 +75,11 @@ export default class Renderer
 	{
 		const gl = this.gl;
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+		this.normalMatrix.identity()
+		this.normalMatrix.copy(this.viewMatrix)
+		this.normalMatrix.inverse()
+		this.normalMatrix.transpose()
 	}
 
 	draw(drawCmd, modelMatrix)
@@ -118,7 +123,7 @@ export default class Renderer
 				case "normal":
 					gl.bindBuffer(gl.ARRAY_BUFFER, mesh.normalBuffer);
 					gl.vertexAttribPointer(attrib.loc, 3, gl.FLOAT, false, 0, 0);
-					break;	
+					break;
 			}
 		}
 	}
@@ -152,6 +157,9 @@ export default class Renderer
 						case "matrixModel": 
 							matrix = this.modelMatrix;
 							break;
+						case "matrixNormal": 
+							matrix = this.normalMatrix;
+							break;
 						default:
 							matrix = material._uniforms[uniform.name];
 							break;
@@ -169,7 +177,7 @@ export default class Renderer
 				{
 					const vec2 = material._uniforms[uniform.name];
 					if(!vec2) {
-						gl.uniform2fv(uniform.loc, this.emptyVec2.v);
+						gl.uniform2fv(uniform.loc, this.emptyVec2.toFloat32Array());
 					}
 					else {
 						gl.uniform2fv(uniform.loc, vec2.toFloat32Array());
@@ -180,7 +188,7 @@ export default class Renderer
 				{
 					const vec3 = material._uniforms[uniform.name];
 					if(!vec3) {
-						gl.uniform3fv(uniform.loc, this.emptyVec3.v);
+						gl.uniform3fv(uniform.loc, this.emptyVec3.toFloat32Array());
 					}
 					else {
 						gl.uniform3fv(uniform.loc, vec3.toFloat32Array());

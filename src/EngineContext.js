@@ -42,9 +42,6 @@ class EngineContext
 		this.renderer.setup();
 		this.resources.load(this.cfg.resources);
 
-		if(this.resources.loaded) {
-			this.ready();
-		}
 		this.resources.on("load", () => {
 			this.ready();
 		});	
@@ -55,6 +52,10 @@ class EngineContext
 
 		if(this.cfg.setup) {
 			this.cfg.setup();
+		}
+
+		if(this.resources.loaded) {
+			this.ready();
 		}
 	}
 
