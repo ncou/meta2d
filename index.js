@@ -13,9 +13,10 @@ import Cubemap from "./src/resources/Cubemap";
 import HDR from "./src/resources/HDR";
 import Content from "./src/resources/Content";
 import Box from "./src/mesh/Box";
+import Sphere from "./src/mesh/Sphere";
 import Node from "./src/scene/Node";
 import Camera from "./src/scene/Camera";
 
 export default { Device, Engine, DrawCommand, Mesh, Texture, Material, 
 	BasicMaterial, DebugMaterial, TextureMaterial, 
-	ResourceManager, Cubemap, HDR, Content, Box };
+	ResourceManager, Cubemap, HDR, Content, Box, Sphere };

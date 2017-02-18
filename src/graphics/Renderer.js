@@ -130,48 +130,48 @@ export default class Renderer
 
 	updateUniforms(drawCmd)
 	{
-		const gl = this.gl;
+		const gl = this.gl
 		const material = drawCmd.material
-		const uniforms = material.uniformData;
+		const uniforms = material.uniformData
 
-		let numSamplers = 0;
+		let numSamplers = 0
 
 		for(let n = 0; n < uniforms.length; n++) 
 		{
-			const uniform = uniforms[n];
+			const uniform = uniforms[n]
 
 			switch(uniform.type)
 			{
 				case gl.FLOAT_MAT4:
 				{
-					let matrix;
+					let matrix
 
 					switch(uniform.name) 
 					{
 						case "matrixProjection":
-							matrix = this.projectionMatrix;
-							break;
+							matrix = this.projectionMatrix
+							break
 						case "matrixView":
-							matrix = this.viewMatrix;
-							break;
+							matrix = this.viewMatrix
+							break
 						case "matrixModel": 
-							matrix = this.modelMatrix;
-							break;
+							matrix = this.modelMatrix
+							break
 						case "matrixNormal": 
-							matrix = this.normalMatrix;
-							break;
+							matrix = this.normalMatrix
+							break
 						default:
-							matrix = material._uniforms[uniform.name];
-							break;
+							matrix = material._uniforms[uniform.name]
+							break
 					}
 
 					if(!matrix) {
-						gl.uniformMatrix4fv(uniform.loc, false, this.emptyMatrix.m);
+						gl.uniformMatrix4fv(uniform.loc, false, this.emptyMatrix.m)
 					}
 					else {
-						gl.uniformMatrix4fv(uniform.loc, false, matrix.m);
+						gl.uniformMatrix4fv(uniform.loc, false, matrix.m)
 					}
-				} break;
+				} break
 
 				case gl.FLOAT_VEC2:
 				{

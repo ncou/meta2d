@@ -1,6 +1,6 @@
-import { Geometry } from "../geometry";
+import Mesh from "../graphics/Mesh"
 
-export function sphere(ctx, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+const Sphere = function(ctx, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
 {
 	let vertices = null;
 	let indices = null;
@@ -60,9 +60,9 @@ export function sphere(ctx, radius, widthSegments, heightSegments, phiStart, phi
 		}
 	}
 
-	const geometry = new Geometry(ctx, vertexPositionData, 
-								new ( vertexPositionData.count > 65535 ? Uint32Array : Uint16Array )( indexData, 1 ),
-								textureCoordData,
-								normalData);
-	return geometry;
+	const mesh = new Mesh(vertexPositionData, indexData, textureCoordData, normalData);
+
+	return mesh;
 }
+
+export default Sphere
