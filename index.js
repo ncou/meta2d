@@ -9,7 +9,7 @@ import Material from "./src/materials/Material"
 import BasicMaterial from "./src/materials/BasicMaterial"
 import DebugMaterial from "./src/materials/DebugMaterial"
 import TextureMaterial from "./src/materials/TextureMaterial"
-import TextureMaterial from "./src/materials/LambertMaterial"
+import LambertMaterial from "./src/materials/LambertMaterial"
 import ResourceManager from "./src/resources/ResourceManager"
 import Cubemap from "./src/resources/Cubemap"
 import HDR from "./src/resources/HDR"
@@ -21,6 +21,6 @@ import Camera from "./src/scene/Camera"
 
 export default { 
 	Device, Engine, Renderer, DrawCommand, Mesh, Texture, Material, 
-	BasicMaterial, DebugMaterial, TextureMaterial, 
+	BasicMaterial, DebugMaterial, TextureMaterial, LambertMaterial,
 	ResourceManager, Cubemap, HDR, Content, Box, Sphere 
 }

@@ -27,9 +27,9 @@ export default class Material extends Resource
 		this.fragmentShaderInstance = null;
 		this.program = null;
 		this.attrib = null;
-		this.attribData = null;
-		this.uniform = null;
-		this.uniformData = null;
+		this.attribData = {};
+		this.uniform = {};
+		this.uniformData = {};
 		this.numAttribs = 0;
 		this._uniforms = {};
 		this.needUpdate = false;
@@ -96,45 +96,45 @@ export default class Material extends Resource
 			}
 		}
 		else if(cfg.fragmentSrc) {
-			newFragmentShader = new Shader();
-			newFragmentShader.src = cfg.fragmentSrc;
+			newFragmentShader = new Shader()
+			newFragmentShader.src = cfg.fragmentSrc
 		}
 		else if(!newFragmentShader) {
-			console.log("(Material.load) Missing vertexShader in: " + this.id);
-			return;
+			console.log("(Material.load) Missing vertexShader in: " + this.id)
+			return
 		}		
 
 		// Vertex shader
 		if(newVertexShader && this.vertexShader !== newVertexShader)
 		{
 			if(this.vertexShader) {
-				this.vertexShader.unsubscribe(this);
+				this.vertexShader.unsubscribe(this, this.handleLoad)
 			}
 
-			newVertexShader.subscribe(this);
-			this.vertexShader = newVertexShader;
+			newVertexShader.subscribe(this, this.handleLoad)
+			this.vertexShader = newVertexShader
 		}
 
 		// Fragment shader
 		if(newFragmentShader && this.fragmentShader !== newFragmentShader)
 		{
 			if(this.fragmentShader) {
-				this.fragmentShader.unsubscribe(this);
+				this.fragmentShader.unsubscribe(this, this.handleLoad)
 			}
 
-			newFragmentShader.subscribe(this);
-			this.fragmentShader = newFragmentShader;
+			newFragmentShader.subscribe(this, this.handleLoad)
+			this.fragmentShader = newFragmentShader
 		}
 
 		if(this.vertexShader.loaded && this.fragmentShader.loaded) {
-			this.compile();
+			this.compile()
 		}
 		else {
-			this.loading = true;
+			this.loading = true
 		}
 
 		if(cfg.uniforms) {
-			this.uniforms = cfg.uniforms;
+			this.uniforms = cfg.uniforms
 		}
 	}
 
@@ -175,7 +175,12 @@ export default class Material extends Resource
 		this.extractAttribs();
 		this.extractUniforms();
 
-		this.loaded = true;
+		if(this.loading) {
+			this.loading = false
+		}
+		else {
+			this.loaded = true
+		}
 
 		return true;
 	}

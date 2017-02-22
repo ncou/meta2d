@@ -109,7 +109,7 @@ export default class Resource
 		else 
 		{
 			const prevLoaded = this._loaded;
-			this._loaded = false; 
+			this._loaded = true; 
 
 			if(prevLoaded) {
 				this.emit("update");

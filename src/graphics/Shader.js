@@ -6,12 +6,13 @@ export default class Shader extends Resource
 {
 	constructor(cfg) 
 	{
-		this.imports = null;
-		this.numToLoad = 0;
-		this._src = null;
-		this.originalSrc = null;
+		this.imports = null
+		this.importStrPos = 0
+		this.numToLoad = 0
+		this._src = null
+		this.originalSrc = null
 
-		super(cfg);
+		super(cfg)
 	}
 
 	load(cfg)
@@ -51,43 +52,50 @@ export default class Shader extends Resource
 			this.imports.lenght = 0;
 		}
 
-		const regexp = /import ([a-zA-Z0-9._-]+)/gm;
+		const regexp = /import ([a-zA-Z0-9._-]+)/gm
 		
-		let result;
+		let result
 		do 
 		{
-			result = regexp.exec(this.originalSrc);
+			result = regexp.exec(this.originalSrc)
 			if(result) 
 			{
-				const shaderId = result[1];
-				let shader = Engine.ctx.getResource(shaderId);
+				const shaderId = result[1]
+				let shader = Engine.ctx.resource(shaderId)
 				if(!shader) {
-					console.warn("(Shader.analyseImports) No such shader registered: " + shaderId);
+					console.warn("(Shader.analyseImports) No such shader registered: " + shaderId)
 					break;
 				}
 
 				if(!this.imports) {
-					this.imports = [ shader ];
+					this.imports = [ shader ]
 				}
 				else {
-					this.imports.push(shader);
+					this.imports.push(shader)
 				}
 
-				shader.subscribe(this, this.handleLoad);
+				if(this.imports.length === 1) {
+					this.importStrPos = result.index
+				}
+
+				shader.subscribe(this, this.handleLoad)
 
 				if(!shader.loaded) {
-					this.numToLoad++;
+					this.numToLoad++
 				}
 			}
-		} while(result);
+		} while(result)
 
 		if(this.imports && this.imports.length > 0) {
-			this.originalSrc = this.originalSrc.replace(regexp, "");
+			this.originalSrc = this.originalSrc.replace(regexp, "")
 		}
 
 		if(this.numToLoad === 0) {
-			this.loading = false;
-			this.loaded = true;
+			this.finalize()
+			this.loading = false
+		}
+		else {
+			this.loading = true
 		}
 	}
 
@@ -95,39 +103,48 @@ export default class Shader extends Resource
 	{
 		if(value) 
 		{
-			this.numToLoad--;
-			if(this.numToLoad === 0) {
-				this.loading = false;
-				this.loaded = true;
+			this.numToLoad--
+			if(this.numToLoad === 0) 
+			{
+				this.finalize()
+				this.loading = false
 			}
 		}
 		else {
-			this.numToLoad++;
-			this.loaded = false;
-			this.loading = true;
+			this.numToLoad++
+			this.loaded = false
+		}
+	}
+
+	finalize() 
+	{
+		if(this.imports) 
+		{
+			let result = ""
+
+			for(let n = this.imports.length - 1; n >= 0; n--) {
+				const shader = this.imports[n]
+				result += shader.src
+			}
+
+			this._src = this.originalSrc.slice(0, this.importStrPos) + result + this.originalSrc.slice(this.importStrPos)
+		}
+		else {
+			this._src = this.originalSrc
 		}
 	}
 
 	set src(src) 
 	{
-		if(src === this.originalSrc) { return; }
+		if(src === this.originalSrc) { return }
 
-		this.originalSrc = src;
-		this.analyseImports();
+		this.originalSrc = src
+		this.analyseImports()
 
-		if(this.imports)
-		{
-			let result = "";
+		if(this.loading) { return }
 
-			for(let n = 0; n < this.imports.length; n++) {
-				result += this.imports[n].src + "\n\n";
-			}
-
-			this._src = result + this.originalSrc;
-		}
-		else {
-			this._src = this.originalSrc;
-		}
+		this.finalize()
+		this.loaded = true
 	}
 
 	get src() {

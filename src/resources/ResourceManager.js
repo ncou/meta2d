@@ -95,17 +95,17 @@ export default class ResourceManager
 	}
 
 	addLoad(resource) {
-		this.numToLoad++;
+		this.numToLoad++
+		console.log("addLoad", resource.id, this.numToLoad)
 	}
 
 	removeLoad(resource)
 	{
-		if(!this.loadingCfg) 
-		{
-			this.numToLoad--;
-			if(this.numToLoad < 0) {
-				console.error("(ResourceManager.handleResourceEvent) Negative `numToLoad` value - this should not happen");
-			}
+		this.numToLoad--;
+		console.log("removeLoad", resource.id, this.numToLoad)
+		
+		if(this.numToLoad < 0) {
+			console.error("(ResourceManager.handleResourceEvent) Negative `numToLoad` value - this should not happen");
 		}
 
 		if(this.numToLoad === 0 && !this.loadingCfg) 
