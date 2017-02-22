@@ -1,7 +1,4 @@
-import Resource from "./Resource";
-
-const types = {};
-const typeOnRegister = {};
+import Resource from "./Resource"
 
 export default class ResourceManager
 {
@@ -136,18 +133,10 @@ export default class ResourceManager
 	}
 }
 
-ResourceManager.registerType = function(cls, onRegister) 
+const register = function(mgr, cfg)
 {
-	types[cls.name] = cls;
-
-	if(onRegister) {
-		typeOnRegister[cls.name] = onRegister;
-	}
-}
-
-function register(mgr, cfg)
-{
-	const map = mgr.map;
+	const types = Resource.__inherit
+	const map = mgr.map
 
 	for(let key in cfg)
 	{
@@ -163,28 +152,19 @@ function register(mgr, cfg)
 			continue;
 		}
 
-		const cls = types[resourceCfg.type];
+		const cls = types[resourceCfg.type]
 		if(!cls) {
 			console.warn("(ResourceManager::register) No such type registered: " + resourceCfg.type);
 			continue;
 		}
 
-		let resource;
-
-		const onRegisterFunc = typeOnRegister[resourceCfg.type];
-		if(onRegisterFunc) {
-			resource = onRegisterFunc(mgr);
-		}
-		else {
-			resource = new cls();
-		}
-
-		resource.id = key;
-		map[key] = resource;
+		const resource = new cls()
+		resource.id = key
+		map[key] = resource
 	}	
 }
 
-function load(mgr, cfg)
+const load = function(mgr, cfg)
 {
 	const map = mgr.map;
 

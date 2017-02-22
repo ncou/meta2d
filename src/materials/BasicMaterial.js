@@ -1,16 +1,14 @@
-import Material from "./Material";
-import ResourceManager from "../resources/ResourceManager";
-
-ResourceManager.registerType(BasicMaterial);
-
-const params = {
-	vertexShader: "basic-vert",
-	fragmentShader: "basic-frag"
-};
+import Material from "./Material"
 
 export default class BasicMaterial extends Material
 {
-	constructor() {
-		super(params);
+	constructor(cfg) {
+		super(cfg)
+	}
+
+	load(cfg) {
+		cfg.vertexShader = cfg.vertexShader || "basic-vert"
+		cfg.fragmentShader = cfg.fragmentShader || "basic-frag"
+		super.load(cfg)
 	}
 }

@@ -9,7 +9,7 @@ const Sphere = function(ctx, radius, widthSegments, heightSegments, phiStart, ph
 
 	var latitudeBands = 30;
 	var longitudeBands = 30;
-	var radius = 2;
+	var radius = radius || 1;
 	var vertexPositionBuffer;
 	var vertexNormalBuffer;
 	var vertexTextureCoordBuffer;

@@ -1,8 +1,5 @@
-import Resource from "./Resource";
-import ResourceManager from "./ResourceManager";
-import fetchContent from "../utils/FetchContent";
-
-ResourceManager.registerType(Content);
+import Resource from "./Resource"
+import fetchContent from "../utils/FetchContent"
 
 class Content extends Resource
 {

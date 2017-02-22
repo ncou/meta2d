@@ -69,9 +69,13 @@ export default class Resource
 				this.emit("loaded");
 			}
 
-			if(this._loading) {
-				this._loading = false;
-				Engine.ctx.resources.removeLoad(this);
+			if(this._loading) 
+			{
+				this._loading = false
+
+				if(Engine.ctx) {
+					Engine.ctx.resources.removeLoad(this)
+				}
 			}
 		}
 		else 
@@ -98,7 +102,9 @@ export default class Resource
 				this.emit("unload");
 			}
 
-			Engine.ctx.resources.addLoad(this);
+			if(Engine.ctx) {
+				Engine.ctx.resources.addLoad(this)
+			}
 		}
 		else 
 		{
@@ -112,7 +118,9 @@ export default class Resource
 				this.emit("loaded");
 			}
 
-			Engine.ctx.resources.removeLoad(this);
+			if(Engine.ctx) {
+				Engine.ctx.resources.removeLoad(this)
+			}
 		}
 	}
 

@@ -1,22 +1,19 @@
-import Engine from "../Engine";
-import Resource from "../resources/Resource";
-import ResourceManager from "../resources/ResourceManager";
-import Shader from "../graphics/Shader";
-import Texture from "../graphics/Texture";
+import Engine from "../Engine"
+import Resource from "../resources/Resource"
+import Shader from "../graphics/Shader"
+import Texture from "../graphics/Texture"
 
-let materialId = 0;
-
-ResourceManager.registerType(Material);
+let materialId = 0
 
 function Attrib(name, loc) {
-	this.name = name;
-	this.loc = loc;
+	this.name = name
+	this.loc = loc
 }
 
 function Uniform(name, loc, type) {
-	this.name = name;
-	this.loc = loc;
-	this.type = type;
+	this.name = name
+	this.loc = loc
+	this.type = type
 }
 
 export default class Material extends Resource

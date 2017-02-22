@@ -1,9 +1,6 @@
-import Engine from "../Engine";
-import Resource from "../resources/Resource";
-import ResourceManager from "../resources/ResourceManager";
-import fetchContent from "../utils/FetchContent";
-
-ResourceManager.registerType(Shader);
+import Engine from "../Engine"
+import Resource from "../resources/Resource"
+import fetchContent from "../utils/FetchContent"
 
 export default class Shader extends Resource
 {

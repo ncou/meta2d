@@ -1,14 +1,12 @@
-import Engine from "../Engine";
-import Resource from "../resources/Resource";
-import ResourceManager from "../resources/ResourceManager";
-
-ResourceManager.registerType(Texture);
+import Engine from "../Engine"
+import Resource from "../resources/Resource"
 
 export default class Texture extends Resource
 {
 	constructor(cfg)
 	{
-		this.instance = null;
+		this.handle = null;
+		this.target = WebGLRenderingContext.TEXTURE_2D
 		this._width = 0;
 		this._height = 0;
 		this._minFilter = 0;
@@ -24,9 +22,9 @@ export default class Texture extends Resource
 		this._width = 0;
 		this._height = 0;
 
-		if(this.instance) {
-			Engine.gl.deleteTexture(this.instance);
-			this.instance = null;
+		if(this.handle) {
+			Engine.gl.deleteTexture(this.handle);
+			this.handle = null;
 		}
 	}
 
@@ -56,8 +54,8 @@ export default class Texture extends Resource
 	{
 		const gl = Engine.gl;
 
-		if(!this.instance) {
-			this.instance = gl.createTexture();
+		if(!this.handle) {
+			this.handle = gl.createTexture();
 		}
 
 		// const ext = Engine.renderer.extension("EXT_sRGB");
@@ -74,7 +72,7 @@ export default class Texture extends Resource
 			this._wrapT = cfg.wrapT || Texture.CLAMP_TO_EDGE;
 		}
 
-		Engine.renderer.bindTexture(this.instance);
+		Engine.renderer.bindTexture(this.handle);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		// gl.texImage2D(gl.TEXTURE_2D, 0, ext.SRGB_EXT, ext.SRGB_EXT, gl.UNSIGNED_BYTE, image);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this._minFilter);
@@ -111,7 +109,7 @@ export default class Texture extends Resource
 		this._wrapS = flag;
 		this._wrapT = flag;
 
-		Engine.renderer.bindTexture(this.instance);
+		Engine.renderer.bindTexture(this.handle);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, flag);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, flag);
 	}
@@ -128,7 +126,7 @@ export default class Texture extends Resource
 
 		const gl = Engine.gl;
 
-		Engine.renderer.bindTexture(this.instance);
+		Engine.renderer.bindTexture(this.handle);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, flag);
 	}
 
@@ -143,7 +141,7 @@ export default class Texture extends Resource
 
 		const gl = Engine.gl;
 
-		Engine.renderer.bindTexture(this.instance);
+		Engine.renderer.bindTexture(this.handle);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, flag);
 	}
 
@@ -158,7 +156,7 @@ export default class Texture extends Resource
 
 		const gl = Engine.gl;
 
-		Engine.renderer.bindTexture(this.instance);
+		Engine.renderer.bindTexture(this.handle);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, flag);
 	}
 
@@ -173,7 +171,7 @@ export default class Texture extends Resource
 
 		const gl = Engine.gl;
 
-		Engine.renderer.bindTexture(this.instance);
+		Engine.renderer.bindTexture(this.handle);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, flag);
 	}
 

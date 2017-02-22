@@ -1,8 +1,5 @@
-import Engine from "../Engine";
-import Resource from "../resources/Resource";
-import ResourceManager from "../resources/ResourceManager";
-
-ResourceManager.registerType(Mesh);
+import Engine from "../Engine"
+import Resource from "../resources/Resource"
 
 export default class Mesh extends Resource
 {
