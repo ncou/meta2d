@@ -204,7 +204,7 @@ export default class Renderer
 						gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
 					}
 					else {
-						gl.bindTexture(gl.TEXTURE_2D, texture.instance);
+						gl.bindTexture(gl.TEXTURE_2D, texture.handle);
 					}
 
 					gl.uniform1i(uniform.loc, numSamplers++);
