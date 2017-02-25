@@ -2,7 +2,6 @@ import Device from "./src/Device"
 import EngineContext from "./src/EngineContext"
 import Engine from "./src/Engine"
 import Renderer from "./src/graphics/Renderer"
-import DrawCommand from "./src/graphics/DrawCommand"
 import Mesh from "./src/graphics/Mesh"
 import Texture from "./src/graphics/Texture"
 import Material from "./src/materials/Material"
@@ -20,7 +19,7 @@ import Node from "./src/scene/Node"
 import Camera from "./src/scene/Camera"
 
 export default { 
-	Device, Engine, Renderer, DrawCommand, Mesh, Texture, Material, 
+	Device, Engine, Renderer, Mesh, Texture, Material, 
 	BasicMaterial, DebugMaterial, TextureMaterial, LambertMaterial,
 	ResourceManager, Cubemap, HDR, Content, Box, Sphere 
 }

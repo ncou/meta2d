@@ -83,27 +83,24 @@ export default class Renderer
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}
 
-	draw(drawCmd, modelMatrix)
+	draw(mesh, material, modelMatrix)
 	{
-		const gl = this.gl;
-		const material = drawCmd.material;
-		const mesh = drawCmd.mesh;
+		const gl = this.gl
 
-		this.modelMatrix = modelMatrix;
+		this.modelMatrix = modelMatrix || this.emptyMatrix
 
-		drawCmd.material = this.setMaterial(material);
-		this.updateUniforms(drawCmd);
-		this.updateAttribs(drawCmd);
+		this.setMaterial(material)
+		this.updateUniforms(material)
+		this.updateAttribs(material, mesh)
 
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
-		gl.drawElements(gl.TRIANGLES, mesh.indices.length, gl.UNSIGNED_SHORT, 0);	
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer)
+		gl.drawElements(gl.TRIANGLES, mesh.indices.length, gl.UNSIGNED_SHORT, 0);
 	}
 
-	updateAttribs(drawCmd)
+	updateAttribs(material, mesh)
 	{
-		const gl = this.gl;
-		const attribs = drawCmd.material.attribData;
-		const mesh = drawCmd.mesh;
+		const gl = this.gl
+		const attribs = material.attribData
 
 		for(let n = 0; n < attribs.length; n++) 
 		{
@@ -129,10 +126,9 @@ export default class Renderer
 		}
 	}
 
-	updateUniforms(drawCmd)
+	updateUniforms(material)
 	{
 		const gl = this.gl
-		const material = drawCmd.material
 		const uniforms = material.uniformData
 
 		let numSamplers = 0
@@ -152,7 +148,7 @@ export default class Renderer
 						case "matrixProjection":
 							matrix = this.projectionMatrix
 							break
-							
+
 						case "matrixView":
 						{
 							if(this.normalMatrixDirty) {
