@@ -6,6 +6,9 @@ import TextureVert from "./webgl/texture-vert.glsl"
 import TextureFrag from "./webgl/texture-frag.glsl"
 import LambertVert from "./webgl/lambert-vert.glsl"
 import LambertFrag from "./webgl/lambert-frag.glsl"
+import ReflectionVert from "./webgl/reflection-vert.glsl"
+import ReflectionFrag from "./webgl/reflection-frag.glsl"
+import SkyboxVert from "./webgl/skybox-vert.glsl"
 import Gamma from "./webgl/gamma.glsl"
 
 export default function load(resources)
@@ -46,6 +49,22 @@ export default function load(resources)
 		"lambert-frag": {
 			type: "Shader",
 			src: LambertFrag
-		}
+		},
+        "reflection-vert": {
+            type: "Shader",
+            src: ReflectionVert
+        },
+        "reflection-frag": {
+            type: "Shader",
+            src: ReflectionFrag
+        },
+        "skybox-vert": {
+            type: "Shader",
+            src: SkyboxVert
+        },
+        "skybox-frag": {
+            type: "Shader",
+            src: SkyboxFrag
+		},
 	});
 }
