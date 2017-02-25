@@ -17,7 +17,7 @@ export default class Texture extends Resource
 		super(cfg);
 	}
 
-	clear() 
+	clear()
 	{
 		this._width = 0;
 		this._height = 0;
@@ -31,7 +31,7 @@ export default class Texture extends Resource
 	load(cfg)
 	{
 		if(!cfg) { return; }
-		
+
 		this.loading = true;
 
 		if(typeof cfg !== "object") {
@@ -50,7 +50,7 @@ export default class Texture extends Resource
 		image.src = cfg.path;
 	}
 
-	update(image, cfg) 
+	update(image, cfg)
 	{
 		const gl = Engine.gl
 
@@ -100,7 +100,7 @@ export default class Texture extends Resource
 		return this._height
 	}
 
-	set repeat(value) 
+	set repeat(value)
 	{
 		const gl = Engine.gl
 		const flag = value ? gl.REPEAT : gl.CLAMP_TO_EDGE

@@ -42,7 +42,7 @@ export default class Renderer
 		this.state.depthTest = true
 
 		gl.clearColor(0.3, 0.3, 0.3, 1.0);
-		gl.depthFunc(gl.LEQUAL);	
+		gl.depthFunc(gl.LEQUAL);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.enable(gl.BLEND);
@@ -102,7 +102,7 @@ export default class Renderer
 		const gl = this.gl
 		const attribs = material.attribData
 
-		for(let n = 0; n < attribs.length; n++) 
+		for(let n = 0; n < attribs.length; n++)
 		{
 			const attrib = attribs[n];
 
@@ -112,7 +112,7 @@ export default class Renderer
 					gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
 					gl.vertexAttribPointer(attrib.loc, 3, gl.FLOAT, false, 0, 0);
 					break;
-				
+
 				case "uv":
 					gl.bindBuffer(gl.ARRAY_BUFFER, mesh.uvBuffer);
 					gl.vertexAttribPointer(attrib.loc, 2, gl.FLOAT, false, 0, 0);
@@ -133,7 +133,7 @@ export default class Renderer
 
 		let numSamplers = 0
 
-		for(let n = 0; n < uniforms.length; n++) 
+		for(let n = 0; n < uniforms.length; n++)
 		{
 			const uniform = uniforms[n]
 
@@ -143,7 +143,7 @@ export default class Renderer
 				{
 					let matrix
 
-					switch(uniform.name) 
+					switch(uniform.name)
 					{
 						case "matrixProjection":
 							matrix = this.projectionMatrix
@@ -160,11 +160,11 @@ export default class Renderer
 
 							matrix = this._viewMatrix
 						} break
-							
-						case "matrixModel": 
+
+						case "matrixModel":
 							matrix = this.modelMatrix
 							break
-						case "matrixNormal": 
+						case "matrixNormal":
 							matrix = this.normalMatrix
 							break
 						default:
@@ -236,7 +236,7 @@ export default class Renderer
 			const currNumAttribs = this.material ? this.material.numAttribs : 0;
 			const newNumAttribs = material.numAttribs;
 
-			if(currNumAttribs < newNumAttribs) 
+			if(currNumAttribs < newNumAttribs)
 			{
 				for(let n = currNumAttribs; n < newNumAttribs; n++) {
 					gl.enableVertexAttribArray(n);
@@ -281,10 +281,10 @@ export default class Renderer
 
 	resize(width, height) {
 		this.gl.viewport(0, 0, width, height);
-		this.projectionMatrix.perspective(0.7853981634, width / height, 0.01, 100.0);	
+		this.projectionMatrix.perspective(0.7853981634, width / height, 0.01, 100.0);
 	}
 
-	extension(id) 
+	extension(id)
 	{
 		let ext = this.extensions[id];
 		if(!ext) {
