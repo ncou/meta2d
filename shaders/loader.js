@@ -9,6 +9,7 @@ import LambertFrag from "./webgl/lambert-frag.glsl"
 import ReflectionVert from "./webgl/reflection-vert.glsl"
 import ReflectionFrag from "./webgl/reflection-frag.glsl"
 import SkyboxVert from "./webgl/skybox-vert.glsl"
+import SkyboxFrag from "./webgl/skybox-frag.glsl"
 import Gamma from "./webgl/gamma.glsl"
 
 export default function load(resources)
