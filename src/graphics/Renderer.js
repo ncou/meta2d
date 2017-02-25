@@ -2,27 +2,31 @@ import DebugMaterial from "../materials/DebugMaterial";
 import Texture from "../graphics/Texture";
 // import Camera from "../scene/Camera";
 import { Vector2, Vector3, Matrix4 } from "meta-math";
+import RenderState from "./RenderState"
 
 export default class Renderer
 {
 	constructor(gl)
 	{
-		this.gl = gl;
-		this.extensions = {};
+		this.gl = gl
+		this.extensions = {}
 
-		this.material = null;
-		this.texture = null;
-		this.emptyMaterial = null;
-		this.emptyTexture = null;
-		this.emptyMatrix = new Matrix4();
-		this.emptyVec2 = new Vector2();
-		this.emptyVec3 = new Vector3();
+		this.material = null
+		this.texture = null
+		this.emptyMaterial = null
+		this.emptyTexture = null
+		this.emptyMatrix = new Matrix4()
+		this.emptyVec2 = new Vector2()
+		this.emptyVec3 = new Vector3()
 
-		this.projectionMatrix = new Matrix4();
-		this.viewMatrix = new Matrix4();
-		this.modelViewMatrix = new Matrix4();
-		this.normalMatrix = new Matrix4();	
-		this.modelMatrix = null;
+		this.emptyMatrix = new Matrix4()
+		this.projectionMatrix = new Matrix4()
+		this.viewMatrix = this.emptyMatrix
+		this.modelViewMatrix = new Matrix4()
+		this.normalMatrix = new Matrix4()
+		this.modelMatrix = null
+
+		this.normalMatrixDirty = true
 
 		// this.camera = new Camera();
 	}
@@ -34,8 +38,10 @@ export default class Renderer
 		this.emptyMaterial = new DebugMaterial();
 		this.createEmptyTexture();
 
+		this.state = new RenderState(gl)
+		this.state.depthTest = true
+
 		gl.clearColor(0.3, 0.3, 0.3, 1.0);
-		gl.enable(gl.DEPTH_TEST);
 		gl.depthFunc(gl.LEQUAL);	
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
@@ -219,32 +225,39 @@ export default class Renderer
 
 	setMaterial(material)
 	{
-		if(!material.loaded) {
-			material = this.emptyMaterial;
-		}
-
-		const gl = this.gl;
-		const currNumAttribs = this.material ? this.material.numAttribs : 0;
-		const newNumAttribs = material.numAttribs;
-
-		if(currNumAttribs < newNumAttribs) 
+		if(this.material !== material)
 		{
-			for(let n = currNumAttribs; n < newNumAttribs; n++) {
-				gl.enableVertexAttribArray(n);
+			if(!material.loaded) {
+				material = this.emptyMaterial;
 			}
-		}
-		else
-		{
-			for(let n = newNumAttribs; n < currNumAttribs; n++) {
-				gl.disableVertexAttribArray(n);
-			}
-		}
 
-		this.material = material;
-		gl.useProgram(material.program);
+			const gl = this.gl;
+			const currNumAttribs = this.material ? this.material.numAttribs : 0;
+			const newNumAttribs = material.numAttribs;
+
+			if(currNumAttribs < newNumAttribs) 
+			{
+				for(let n = currNumAttribs; n < newNumAttribs; n++) {
+					gl.enableVertexAttribArray(n);
+				}
+			}
+			else
+			{
+				for(let n = newNumAttribs; n < currNumAttribs; n++) {
+					gl.disableVertexAttribArray(n);
+				}
+			}
+
+            if(this.state.depthTest !== material.depthTest) {
+                this.state.depthTest = material.depthTest
+			}
+
+			this.material = material
+			gl.useProgram(material.program)
+		}
 
 		if(material.needUpdate) {
-			material.update();
+			material.update()
 		}
 
 		return material;
