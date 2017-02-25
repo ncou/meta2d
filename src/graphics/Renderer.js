@@ -21,7 +21,7 @@ export default class Renderer
 
 		this.emptyMatrix = new Matrix4()
 		this.projectionMatrix = new Matrix4()
-		this.viewMatrix = this.emptyMatrix
+		this._viewMatrix = this.emptyMatrix
 		this.modelViewMatrix = new Matrix4()
 		this.normalMatrix = new Matrix4()
 		this.modelMatrix = null
@@ -81,11 +81,6 @@ export default class Renderer
 	{
 		const gl = this.gl;
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-		this.normalMatrix.identity()
-		this.normalMatrix.copy(this.viewMatrix)
-		this.normalMatrix.inverse()
-		this.normalMatrix.transpose()
 	}
 
 	draw(drawCmd, modelMatrix)
@@ -157,9 +152,19 @@ export default class Renderer
 						case "matrixProjection":
 							matrix = this.projectionMatrix
 							break
+							
 						case "matrixView":
-							matrix = this.viewMatrix
-							break
+						{
+							if(this.normalMatrixDirty) {
+								this.normalMatrix.copy(this._viewMatrix)
+								this.normalMatrix.inverse()
+								this.normalMatrix.transpose()
+								this.normalMatrixDirty = false
+							}
+
+							matrix = this._viewMatrix
+						} break
+							
 						case "matrixModel": 
 							matrix = this.modelMatrix
 							break
@@ -261,6 +266,11 @@ export default class Renderer
 		}
 
 		return material;
+	}
+
+	set viewMatrix(matrix) {
+		this._viewMatrix = matrix || this.emptyMatrix
+		this.normalMatrixDirty = true
 	}
 
 	bindTexture(texture)
