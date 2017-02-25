@@ -25,16 +25,18 @@ export default class Material extends Resource
 		this.vertexShaderInstance = null;
 		this.fragmentShader = null;
 		this.fragmentShaderInstance = null;
-		this.program = null;
-		this.attrib = null;
-		this.attribData = {};
-		this.uniform = {};
-		this.uniformData = {};
-		this.numAttribs = 0;
-		this._uniforms = {};
-		this.needUpdate = false;
+		this.program = null
+		this.attrib = null
+		this.attribData = {}
+		this.uniform = {}
+		this.uniformData = {}
+		this.numAttribs = 0
+		this._uniforms = {}
+		this.needUpdate = false
 
-		super(cfg);
+		this.depthTest = true
+
+		super(cfg)
 	}
 
 	cleanup()
