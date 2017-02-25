@@ -35,8 +35,9 @@ export default class Renderer
 	{
 		const gl = this.gl;
 
-		this.emptyMaterial = new DebugMaterial();
-		this.createEmptyTexture();
+		this.emptyMaterial = new DebugMaterial()
+		this.createEmptyTexture()
+		this.createEmptyCubeMap()
 
 		this.state = new RenderState(gl)
 		this.state.depthTest = true
@@ -56,20 +57,43 @@ export default class Renderer
 
 	createEmptyTexture()
 	{
-		const gl = this.gl;
-		const canvas = document.createElement("canvas");
-		const ctx = canvas.getContext("2d");
-		canvas.width = 4;
-		canvas.height = 4;
-		ctx.fillStyle = "#00ff00";
-		ctx.fillRect(0, 0, 16, 16);
-		this.emptyTexture = gl.createTexture();
-		gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        const gl = this.gl
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")
+        canvas.width = 2
+        canvas.height = 2
+        ctx.fillStyle = "#00ff00"
+        ctx.fillRect(0, 0, 16, 16)
+        this.emptyTexture = gl.createTexture()
+        gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+	}
+
+	createEmptyCubeMap()
+	{
+		const gl = this.gl
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")
+        canvas.width = 2
+        canvas.height = 2
+        ctx.fillStyle = "#00ff00"
+        ctx.fillRect(0, 0, 16, 16)
+        this.emptyCubeMap = gl.createTexture()
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.emptyCubeMap)
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
+        for(let n = 0; n < 6; n++)
+        {
+            const target = gl.TEXTURE_CUBE_MAP_POSITIVE_X + n
+            gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas)
+        }		
 	}
 
 	update(tDelta)
@@ -215,7 +239,22 @@ export default class Renderer
 					}
 
 					gl.uniform1i(uniform.loc, numSamplers++);
-				} break;
+				} break
+
+                case gl.SAMPLER_CUBE:
+                {
+                    gl.activeTexture(gl.TEXTURE0 + numSamplers)
+
+                    const cubemap = material._uniforms[uniform.name]
+                    if(!cubemap) {
+                        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.emptyCubeMap)
+                    }
+                    else {
+                        gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubemap.handle)
+                    }
+
+                    gl.uniform1i(uniform.loc, numSamplers++)
+                } break
 
 				case gl.FLOAT:
 					gl.uniform1f(uniform.loc, material._uniforms[uniform.name]);

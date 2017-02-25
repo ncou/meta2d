@@ -2,6 +2,7 @@ import Engine from "../Engine"
 import Resource from "../resources/Resource"
 import Shader from "../graphics/Shader"
 import Texture from "../graphics/Texture"
+import CubeMap from "../graphics/CubeMap"
 
 let materialId = 0
 
@@ -266,14 +267,26 @@ export default class Material extends Resource
 				case gl.SAMPLER_2D:
 				{
 					if(typeof value === "string") {
-						value = Engine.ctx.resource(value);
-						this._uniforms[uniform.name] = value;
+						value = Engine.ctx.resource(value)
+						this._uniforms[uniform.name] = value
 					}
 					
 					if(!(value instanceof Texture)) {
-						console.warn(`(Material.update) Invalid SAMPLER_2D uniform "${uniform.name}" for: ${this.constructor.name}`);
+						console.warn(`(Material.update) Invalid SAMPLER_2D uniform "${uniform.name}" for: ${this.constructor.name}`)
 					}
-				} break;
+				} break
+
+				case gl.SAMPLER_CUBE:
+				{
+					if(typeof value === "string") {
+						value = Engine.ctx.resource(value)
+						this._uniforms[uniform.name] = value
+					}
+					
+					if(!(value instanceof CubeMap)) {
+						console.warn(`(Material.update) Invalid SAMPLER_CUBE uniform "${uniform.name}" for: ${this.constructor.name}`)
+					}
+				} break
 			}
 		}
 

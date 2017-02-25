@@ -1,5 +1,5 @@
 
-class RenderState 
+class RenderState
 {
     constructor(gl) {
         this.gl = gl
@@ -8,8 +8,6 @@ class RenderState
 
     set depthTest(value)
     {
-        console.log("depth-test", value)
-
         this._depthTest = value
 
         if(value) {
