@@ -18,7 +18,7 @@ void main()
 	float diffuse = max(0.0, dot(L, N));
 
 	vec3 _lightColor = lightColor;
-	vec4 baseColor = texture2D(albedo, varUV  * vec2(3.0, 2.0));
+	vec4 baseColor = texture2D(albedo, varUV);
 
 	vec4 finalColor = vec4(baseColor.rgb * diffuse, 1.0);
 	gl_FragColor = toGamma(finalColor);
