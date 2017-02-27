@@ -36,6 +36,7 @@ export default class Material extends Resource
 		this.needUpdate = false
 
 		this.depthTest = true
+		this.cullFace = Material.BACK
 
 		super(cfg)
 	}
@@ -317,3 +318,8 @@ export default class Material extends Resource
 		return this._uniforms;
 	}
 }
+
+const webgl = WebGLRenderingContext;
+Material.FRONT = webgl.FRONT
+Material.BACK = webgl.BACK
+Material.FRONT_AND_BACK = webgl.FRONT_AND_BACK

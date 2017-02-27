@@ -47,7 +47,10 @@ export default class Renderer
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+		// gl.enable(gl.CULL_FACE)
+		// gl.cullFace(gl.FRONT)
 
 		// extensions:
 		this.extension("EXT_sRGB");
@@ -174,6 +177,13 @@ export default class Renderer
 							break
 
 						case "matrixView":
+							matrix = this._viewMatrix
+							break
+
+						case "matrixModel":
+							matrix = this.modelMatrix
+							break
+						case "matrixNormal":
 						{
 							if(this.normalMatrixDirty) {
 								this.normalMatrix.copy(this._viewMatrix)
@@ -182,15 +192,9 @@ export default class Renderer
 								this.normalMatrixDirty = false
 							}
 
-							matrix = this._viewMatrix
-						} break
-
-						case "matrixModel":
-							matrix = this.modelMatrix
-							break
-						case "matrixNormal":
 							matrix = this.normalMatrix
-							break
+						} break
+							
 						default:
 							matrix = material._uniforms[uniform.name]
 							break
@@ -290,6 +294,9 @@ export default class Renderer
 
             if(this.state.depthTest !== material.depthTest) {
                 this.state.depthTest = material.depthTest
+			}
+            if(this.state.cullFace !== material.cullFace) {
+                this.state.cullFace = material.cullFace
 			}
 
 			this.material = material
