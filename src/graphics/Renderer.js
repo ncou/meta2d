@@ -19,15 +19,16 @@ export default class Renderer
 		this.emptyVec2 = new Vector2()
 		this.emptyVec3 = new Vector3()
 
-		this.emptyMatrix = new Matrix4()
-		this.projectionMatrix = new Matrix4()
-		this._viewMatrix = this.emptyMatrix
-		this.modelViewMatrix = new Matrix4()
-		this.normalMatrix = new Matrix4()
-		this.modelMatrix = null
+		this.matrixEmpty = new Matrix4()
+		this.matrixProjection = new Matrix4()
+		this._matrixView = this.matrixEmpty
+		this.matrixInverseView = new Matrix4()
+		this.matrixNormal = new Matrix4()
+		this.matrixModel = null
 
-		this.normalMatrixDirty = true
-
+		this.matrixDirty_view = true
+		this.matrixDirty_normal = true
+		
 		// this.camera = new Camera();
 	}
 
@@ -110,11 +111,11 @@ export default class Renderer
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	}
 
-	draw(mesh, material, modelMatrix)
+	draw(mesh, material, matrixModel)
 	{
 		const gl = this.gl
 
-		this.modelMatrix = modelMatrix || this.emptyMatrix
+		this.matrixModel = matrixModel || this.matrixEmpty
 
 		this.setMaterial(material)
 		this.updateUniforms(material)
@@ -173,26 +174,38 @@ export default class Renderer
 					switch(uniform.name)
 					{
 						case "matrixProjection":
-							matrix = this.projectionMatrix
+							matrix = this.matrixProjection
 							break
 
 						case "matrixView":
-							matrix = this._viewMatrix
+							matrix = this._matrixView
 							break
 
 						case "matrixModel":
-							matrix = this.modelMatrix
+							matrix = this.matrixModel
 							break
+
 						case "matrixNormal":
 						{
-							if(this.normalMatrixDirty) {
-								this.normalMatrix.copy(this._viewMatrix)
-								this.normalMatrix.inverse()
-								this.normalMatrix.transpose()
-								this.normalMatrixDirty = false
+							if(this.matrixDirty_normal) {
+								this.matrixNormal.copy(this._matrixView)
+								this.matrixNormal.inverse()
+								this.matrixNormal.transpose()
+								this.matrixDirty_normal = false
 							}
 
-							matrix = this.normalMatrix
+							matrix = this.matrixNormal
+						} break
+
+						case "matrixInverseView":
+						{
+							if(this.matrixDirty_InverseView) {
+								this.matrixInverseView.copy(this._matrixView)
+								this.matrixInverseView.inverse()
+								this.matrixDirty_InverseView = false
+							}
+
+							matrix = this.matrixInverseView
 						} break
 							
 						default:
@@ -201,7 +214,7 @@ export default class Renderer
 					}
 
 					if(!matrix) {
-						gl.uniformMatrix4fv(uniform.loc, false, this.emptyMatrix.m)
+						gl.uniformMatrix4fv(uniform.loc, false, this.matrixEmpty.m)
 					}
 					else {
 						gl.uniformMatrix4fv(uniform.loc, false, matrix.m)
@@ -310,9 +323,10 @@ export default class Renderer
 		return material;
 	}
 
-	set viewMatrix(matrix) {
-		this._viewMatrix = matrix || this.emptyMatrix
-		this.normalMatrixDirty = true
+	set matrixView(matrix) {
+		this._matrixView = matrix || this.matrixEmpty
+		this.matrixDirty_normal = true
+		this.matrixDirty_inverseView = true
 	}
 
 	bindTexture(texture)
@@ -327,7 +341,7 @@ export default class Renderer
 
 	resize(width, height) {
 		this.gl.viewport(0, 0, width, height);
-		this.projectionMatrix.perspective(0.7853981634, width / height, 0.01, 100.0);
+		this.matrixProjection.perspective(0.7853981634, width / height, 0.01, 100.0);
 	}
 
 	extension(id)

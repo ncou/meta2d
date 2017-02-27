@@ -12,6 +12,7 @@ export default class SkyboxMaterial extends Material
 		cfg.fragmentShader = cfg.fragmentShader || "skybox-frag"
 		super.load(cfg)
 
-		this.depthTest = false
+		this.depthTest = cfg.depthTest || false
+		this.cullFace = cfg.cullFace || Material.FRONT
 	}
 }
