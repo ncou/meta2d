@@ -1,12 +1,12 @@
 
 class RenderState
 {
-    constructor(gl) 
+    constructor(gl)
     {
         this.gl = gl
         this._depthTest = false
         this._cullFace = gl.BACK
-        
+
         gl.enable(gl.CULL_FACE)
     }
 
@@ -26,10 +26,10 @@ class RenderState
         return this._depthTest
     }
 
-    set cullFace(value) 
+    set cullFace(value)
     {
         this._cullFace = value
-        gl.cullFace(value)
+        this.gl.cullFace(value)
     }
 
     get cullFace() {
