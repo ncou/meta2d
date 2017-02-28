@@ -31,6 +31,10 @@ export default class Texture extends Resource
 	load(cfg)
 	{
 		if(!cfg) { return; }
+		if(!cfg.path) {
+			console.warn("(Texture.load) Invalid path passed")
+			return
+		}
 
 		this.loading = true;
 
@@ -38,16 +42,43 @@ export default class Texture extends Resource
 			cfg = { path: cfg };
 		}
 
-		const image = new Image();
-		image.onload = () => {
-			this.update(image, cfg);
-		};
-		image.onerror = () => {
-			this.update(null, cfg);
-			this.failed();
-		};
+		let ext
+		const extIndex = cfg.path.lastIndexOf(".")
+		if(extIndex === -1) {
+			ext = "png"
+			cfg.path += ".png"
+		}
+		else {
+			ext = cfg.path.slice(extIndex + 1)
+		}
 
-		image.src = cfg.path;
+		if(ext === "dds")
+		{
+			const xhr = new XMLHttpRequest()
+			xhr.open("GET", cfg.path, true)
+			xhr.responseType = "arraybuffer"
+			xhr.onload = () => {
+				this.updateDDS(xhr.response)
+			}
+			xhr.onerror = () => {
+				this.update(null, cfg)
+				this.failed()
+			}
+			xhr.send(null)
+		}
+		else
+		{
+			const image = new Image()
+			image.onload = () => {
+				this.update(image, cfg)
+			};
+			image.onerror = () => {
+				this.update(null, cfg)
+				this.failed()
+			};
+
+			image.src = cfg.path
+		}
 	}
 
 	update(image, cfg)
@@ -91,6 +122,83 @@ export default class Texture extends Resource
 
 		this.loaded = true
 	}
+
+	updateDDS(data)
+	{
+		const gl = Engine.gl
+        const header = new Int32Array(data, 0, DDS_HEADER.headerLengthInt)
+
+		if(!this.handle) {
+			this.handle = gl.createTexture()
+		}
+
+        if(header[DDS_HEADER.offsetMagic] != DDS_MAGIC) {
+            console.error("Invalid magic number in DDS header")
+			this.failed()
+			return
+        }
+
+        if(!header[DDS_HEADER.offsetPfFlags] & DDPF_FOURCC) {
+            console.error("Unsupported format, must contain a FourCC code")
+            this.failed()
+			return
+        }
+
+		const ext = Engine.renderer.extension("WEBGL_compressed_texture_s3tc")
+
+		let blockBytes, internalFormat
+        const fourCC = header[DDS_HEADER.offsetPfFourCC]
+        switch(fourCC)
+		{
+            case FOURCC_DXT1:
+                blockBytes = 8
+                internalFormat = ext.COMPRESSED_RGBA_S3TC_DXT1_EXT
+                break
+
+            case FOURCC_DXT5:
+                blockBytes = 16
+                internalFormat = ext.COMPRESSED_RGBA_S3TC_DXT5_EXT
+                break
+
+            default:
+                console.error("Unsupported FourCC code:", Int32ToFourCC(fourCC))
+				this.failed()
+				return
+        }
+
+        let mipmaps = 1;
+        if(header[DDS_HEADER.offsetFlags] & DDSD_MIPMAPCOUNT) {
+            mipmaps = Math.max(1, header[DDS_HEADER.offsetMipmapCount])
+        }
+
+        let width = header[DDS_HEADER.offsetWidth]
+        let height = header[DDS_HEADER.offsetHeight]
+        let dataOffset = header[DDS_HEADER.offsetSize] + 4
+		this._width = width
+		this._height = height
+
+		Engine.renderer.bindTexture(this.handle)
+
+        for(let n = 0; n < mipmaps; n++) 
+		{
+            const dataLength = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockBytes
+            const byteArray = new Uint8Array(data, dataOffset, dataLength)
+            gl.compressedTexImage2D(gl.TEXTURE_2D, n, internalFormat, width, height, 0, byteArray)
+            dataOffset += dataLength
+            width *= 0.5
+            height *= 0.5
+        }
+
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipmaps > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR)
+
+		this.loaded = true
+	}
+
+    uploadDDSLevels(gl, ext, arrayBuffer, loadMipmaps)
+	{
+
+    }
 
 	get width() {
 		return this._width
@@ -178,6 +286,68 @@ export default class Texture extends Resource
 		return this._magFilter
 	}
 }
+
+const FourCCToInt32 = function(value) {
+	return value.charCodeAt(0) +
+		(value.charCodeAt(1) << 8) +
+		(value.charCodeAt(2) << 16) +
+		(value.charCodeAt(3) << 24)
+}
+
+const Int32ToFourCC = function(value) {
+	return String.fromCharCode(
+		value & 0xff,
+		(value >> 8) & 0xff,
+		(value >> 16) & 0xff,
+		(value >> 24) & 0xff
+	)
+}
+
+const DDS_MAGIC = 0x20534444
+
+const DDSD_CAPS = 0x1
+const DDSD_HEIGHT = 0x2
+const DDSD_WIDTH = 0x4
+const DDSD_PITCH = 0x8
+const DDSD_PIXELFORMAT = 0x1000
+const DDSD_MIPMAPCOUNT = 0x20000
+const DDSD_LINEARSIZE = 0x80000
+const DDSD_DEPTH = 0x800000
+
+const DDSCAPS_COMPLEX = 0x8
+const DDSCAPS_MIPMAP = 0x400000
+const DDSCAPS_TEXTURE = 0x1000
+
+const DDSCAPS2_CUBEMAP = 0x200
+const DDSCAPS2_CUBEMAP_POSITIVEX = 0x400
+const DDSCAPS2_CUBEMAP_NEGATIVEX = 0x800
+const DDSCAPS2_CUBEMAP_POSITIVEY = 0x1000
+const DDSCAPS2_CUBEMAP_NEGATIVEY = 0x2000
+const DDSCAPS2_CUBEMAP_POSITIVEZ = 0x4000
+const DDSCAPS2_CUBEMAP_NEGATIVEZ = 0x8000
+const DDSCAPS2_VOLUME = 0x200000
+
+const DDPF_ALPHAPIXELS = 0x1
+const DDPF_ALPHA = 0x2
+const DDPF_FOURCC = 0x4
+const DDPF_RGB = 0x40
+const DDPF_YUV = 0x200
+const DDPF_LUMINANCE = 0x20000
+
+const DDS_HEADER = {
+	headerLengthInt: 31,
+	offsetMagic: 0,
+	offsetSize: 1,
+	offsetFlags: 2,
+	offsetHeight: 3,
+	offsetWidth: 4,
+	offsetMipmapCount: 7,
+	offsetPfFlags: 20,
+	offsetPfFourCC: 21
+}
+
+const FOURCC_DXT1 = FourCCToInt32("DXT1")
+const FOURCC_DXT5 = FourCCToInt32("DXT5")
 
 const webgl = WebGLRenderingContext;
 Texture.NEAREST = webgl.NEAREST;
