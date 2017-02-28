@@ -320,6 +320,6 @@ export default class Material extends Resource
 }
 
 const webgl = WebGLRenderingContext;
-Material.FRONT = webgl.FRONT
-Material.BACK = webgl.BACK
+Material.FRONT = webgl.BACK
+Material.BACK = webgl.FRONT
 Material.FRONT_AND_BACK = webgl.FRONT_AND_BACK

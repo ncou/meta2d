@@ -28,6 +28,12 @@ export default class Renderer
 
 		this.matrixDirty_view = true
 		this.matrixDirty_normal = true
+
+		const projectionTransform = new Matrix4([ 
+			1.0, 0.0, 0.0, 0.0,
+			0.0, -1.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0,
+			0.0, 0.0, 0.0, 1.0 ])
 		
 		// this.camera = new Camera();
 	}
@@ -45,13 +51,11 @@ export default class Renderer
 
 		gl.clearColor(0.3, 0.3, 0.3, 1.0);
 		gl.depthFunc(gl.LEQUAL);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-		// gl.enable(gl.CULL_FACE)
-		// gl.cullFace(gl.FRONT)
+		gl.enable(gl.CULL_FACE)
 
 		// extensions:
 		this.extension("EXT_sRGB");
@@ -339,17 +343,28 @@ export default class Renderer
 		this.texture = texture;
 	}
 
-	resize(width, height) {
-		this.gl.viewport(0, 0, width, height);
-		this.matrixProjection.perspective(0.7853981634, width / height, 0.01, 100.0);
+	resize(width, height) 
+	{
+		this.gl.viewport(0, 0, width, height)
+		this.matrixProjection.perspective(0.7853981634, width / height, 0.01, 100.0)
+		this.matrixProjection.mul(this.projectionTransform)
 	}
 
 	extension(id)
 	{
-		let ext = this.extensions[id];
-		if(!ext) {
-			ext = this.gl.getExtension(id);
-			this.extensions[id] = ext;
+		let ext = this.extensions[id]
+		if(!ext) 
+		{
+			ext = this.gl.getExtension(id) ||
+				this.gl.getExtension("WEBGL_" + id) ||
+				this.gl.getExtension("MOZ_" + id) ||
+				this.gl.getExtension("MS_" + id)
+			
+			if(!ext) {
+				console.warn("Extension not supported: " + id)
+			}
+
+			this.extensions[id] = ext
 		}
 
 		return ext;
