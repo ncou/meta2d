@@ -6,6 +6,8 @@ class RenderState
         this.gl = gl
         this._depthTest = false
         this._cullFace = gl.BACK
+
+        gl.enable(gl.CULL_FACE)
     }
 
     set depthTest(value)

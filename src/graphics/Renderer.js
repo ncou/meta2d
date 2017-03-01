@@ -22,12 +22,17 @@ export default class Renderer
 		this.matrixEmpty = new Matrix4()
 		this.matrixProjection = new Matrix4()
 		this._matrixView = this.matrixEmpty
+		this.matrixInverseProjection = new Matrix4()
 		this.matrixInverseView = new Matrix4()
+		this.matrixTransposeView = new Matrix4()
 		this.matrixNormal = new Matrix4()
 		this.matrixModel = null
 
 		this.matrixDirty_view = true
 		this.matrixDirty_normal = true
+		this.matrixDirty_inverseProjection = true
+		this.matrixDirty_inverseView = true
+		this.matrixDirty_transposeView = true
 
 		this.projectionTransform = new Matrix4([ 
 			1.0, 0.0, 0.0, 0.0,
@@ -55,8 +60,6 @@ export default class Renderer
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-		gl.enable(gl.CULL_FACE)
 
 		// extensions:
 		this.extension("EXT_sRGB");
@@ -212,6 +215,28 @@ export default class Renderer
 
 							matrix = this.matrixInverseView
 						} break
+
+						case "matrixTransposeView":
+						{
+							if(this.matrixDirty_transposeView) {
+								this.matrixTransposeView.copy(this._matrixView)
+								this.matrixTransposeView.transpose()
+								this.matrixDirty_transposeView = false
+							}
+
+							matrix = this.matrixTransposeView
+						} break
+
+						case "matrixInverseProjection":
+						{
+							if(this.matrixDirty_inverseProjection) {
+								this.matrixInverseProjection.copy(this.matrixProjection)
+								this.matrixInverseProjection.inverse()
+								this.matrixDirty_inverseProjection = false
+							}
+
+							matrix = this.matrixInverseProjection
+						} break
 							
 						default:
 							matrix = material._uniforms[uniform.name]
@@ -332,6 +357,7 @@ export default class Renderer
 		this._matrixView = matrix || this.matrixEmpty
 		this.matrixDirty_normal = true
 		this.matrixDirty_inverseView = true
+		this.matrixDirty_transposeView = true
 	}
 
 	bindTexture(texture)
@@ -349,6 +375,8 @@ export default class Renderer
 		this.gl.viewport(0, 0, width, height)
 		this.matrixProjection.perspective(0.7853981634, width / height, 0.01, 100.0)
 		this.matrixProjection.mul(this.projectionTransform)
+
+		this.matrixDirty_inverseProjection = true
 	}
 
 	extension(id)
