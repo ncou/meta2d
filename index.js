@@ -16,13 +16,15 @@ import ResourceManager from "./src/resources/ResourceManager"
 import Cubemap from "./src/resources/Cubemap"
 import HDR from "./src/resources/HDR"
 import Content from "./src/resources/Content"
-import Box from "./src/mesh/Box"
-import Sphere from "./src/mesh/Sphere"
+import Box from "./src/geometry/Box"
+import Sphere from "./src/geometry/Sphere"
+import FullscreenQuad from "./src/geometry/FullscreenQuad"
 import Node from "./src/scene/Node"
 import Camera from "./src/scene/Camera"
 
 export default { 
 	Device, Engine, Renderer, Mesh, Texture, CubeMap,
 	Material, BasicMaterial, DebugMaterial, TextureMaterial, LambertMaterial, SkyboxMaterial, ReflectionMaterial,
-	ResourceManager, Cubemap, HDR, Content, Box, Sphere 
+	ResourceManager, Cubemap, HDR, Content, 
+	Box, Sphere, FullscreenQuad
 }
