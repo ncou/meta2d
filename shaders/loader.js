@@ -10,7 +10,8 @@ import ReflectionVert from "./webgl/reflection-vert.glsl"
 import ReflectionFrag from "./webgl/reflection-frag.glsl"
 import SkyboxVert from "./webgl/skybox-vert.glsl"
 import SkyboxFrag from "./webgl/skybox-frag.glsl"
-import Gamma from "./webgl/gamma.glsl"
+import EnvMap from "./webgl/chunks/envmap.glsl"
+import Gamma from "./webgl/chunks/gamma.glsl"
 
 export default function load(resources)
 {
@@ -18,6 +19,10 @@ export default function load(resources)
 		"gamma.glsl": {
 			type: "Shader",
 			src: Gamma
+		},
+		"envmap.glsl": {
+			type: "Shader",
+			src: EnvMap
 		},
 		"basic-vert": {
 			type: "Shader",

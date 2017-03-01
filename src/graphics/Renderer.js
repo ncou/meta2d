@@ -29,7 +29,7 @@ export default class Renderer
 		this.matrixDirty_view = true
 		this.matrixDirty_normal = true
 
-		const projectionTransform = new Matrix4([ 
+		this.projectionTransform = new Matrix4([ 
 			1.0, 0.0, 0.0, 0.0,
 			0.0, -1.0, 0.0, 0.0,
 			0.0, 0.0, 1.0, 0.0,
@@ -51,6 +51,7 @@ export default class Renderer
 
 		gl.clearColor(0.3, 0.3, 0.3, 1.0);
 		gl.depthFunc(gl.LEQUAL);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -203,10 +204,10 @@ export default class Renderer
 
 						case "matrixInverseView":
 						{
-							if(this.matrixDirty_InverseView) {
+							if(this.matrixDirty_inverseView) {
 								this.matrixInverseView.copy(this._matrixView)
 								this.matrixInverseView.inverse()
-								this.matrixDirty_InverseView = false
+								this.matrixDirty_inverseView = false
 							}
 
 							matrix = this.matrixInverseView

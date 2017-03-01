@@ -33,7 +33,9 @@ export default class Material extends Resource
 		this.uniformData = {}
 		this.numAttribs = 0
 		this._uniforms = {}
+		this._defines = {}
 		this.needUpdate = false
+		this.needCompile = false
 
 		this.depthTest = true
 		this.cullFace = Material.BACK
@@ -74,7 +76,7 @@ export default class Material extends Resource
 		let newVertexShader;
 		let newFragmentShader;
 
-		if(cfg.vertexShader) 
+		if(cfg.vertexShader)
 		{
 			newVertexShader = Engine.ctx.resource(cfg.vertexShader);
 			if(!newVertexShader) {
@@ -91,7 +93,7 @@ export default class Material extends Resource
 			return;
 		}
 
-		if(cfg.fragmentShader) 
+		if(cfg.fragmentShader)
 		{
 			newFragmentShader = Engine.ctx.resource(cfg.fragmentShader);
 			if(!newFragmentShader) {
@@ -106,7 +108,7 @@ export default class Material extends Resource
 		else if(!newFragmentShader) {
 			console.log("(Material.load) Missing vertexShader in: " + this.id)
 			return
-		}		
+		}
 
 		// Vertex shader
 		if(newVertexShader && this.vertexShader !== newVertexShader)
@@ -130,37 +132,52 @@ export default class Material extends Resource
 			this.fragmentShader = newFragmentShader
 		}
 
+		if(cfg.uniforms) {
+			this.uniforms = cfg.uniforms
+		}
+
 		if(this.vertexShader.loaded && this.fragmentShader.loaded) {
 			this.compile()
 		}
 		else {
 			this.loading = true
 		}
-
-		if(cfg.uniforms) {
-			this.uniforms = cfg.uniforms
-		}
 	}
 
 	compile()
 	{
-		const gl = Engine.gl;
+		const gl = Engine.gl
 
 		if(this.program) {
-			this.cleanup();
+			this.cleanup()
 		}
 
-		this.vertexShaderInstance = this.compileShader(gl.VERTEX_SHADER, this.vertexShader);
+		let definesOutput = ""
+		if(this._defines)
+		{
+			for(let key in this._defines) {
+				const value = this._defines[key]
+				if(value) {
+					definesOutput += `#define ${key}` + "\n"
+				}
+			}
+
+			if(definesOutput) {
+				definesOutput += "\n"
+			}
+		}
+
+		this.vertexShaderInstance = this.compileShader(gl.VERTEX_SHADER, this.vertexShader, definesOutput)
 		if(!this.vertexShaderInstance) {
-			this.failed();
-			return false;
+			this.failed()
+			return false
 		}
 
-		this.fragmentShaderInstance = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
+		this.fragmentShaderInstance = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader, definesOutput)
 		if(!this.fragmentShaderInstance) {
-			this.cleanup();
-			this.failed();
-			return false;
+			this.cleanup()
+			this.failed()
+			return false
 		}
 
 		this.program = gl.createProgram();
@@ -176,8 +193,10 @@ export default class Material extends Resource
 			return false;
 		}
 
-		this.extractAttribs();
-		this.extractUniforms();
+		this.extractAttribs()
+		this.extractUniforms()
+
+		this.needCompile = false
 
 		if(this.loading) {
 			this.loading = false
@@ -186,15 +205,15 @@ export default class Material extends Resource
 			this.loaded = true
 		}
 
-		return true;
+		return true
 	}
 
-	compileShader(type, shader)
+	compileShader(type, shader, defines)
 	{
 		const gl = Engine.gl;
 		const instance = gl.createShader(type);
 
-		gl.shaderSource(instance, shader.src);
+		gl.shaderSource(instance, defines + shader.src);
 		gl.compileShader(instance);
 
 		const success = gl.getShaderParameter(instance, gl.COMPILE_STATUS)
@@ -206,7 +225,7 @@ export default class Material extends Resource
 		return instance;
 	}
 
-	getStrShaderType(type) 
+	getStrShaderType(type)
 	{
 		const gl = Engine.gl;
 
@@ -251,43 +270,31 @@ export default class Material extends Resource
 
 	update()
 	{
-		if(!this.loaded) {
-			return;
-		}
-
 		const gl = Engine.gl;
 
-		for(let n = 0; n < this.uniformData.length; n++) 
+		for(let key in this._uniforms)
 		{
-			const uniform = this.uniformData[n];
-			let value = this._uniforms[uniform.name];
-			if(!value) { continue; }
+			const value = this._uniforms[key]
+			if(typeof value === "string") {
+				this._uniforms[key] = Engine.ctx.resource(value)
+			}
+		}
 
-			switch(uniform.type)
-			{
-				case gl.SAMPLER_2D:
-				{
-					if(typeof value === "string") {
-						value = Engine.ctx.resource(value)
-						this._uniforms[uniform.name] = value
-					}
-					
-					if(!(value instanceof Texture)) {
-						console.warn(`(Material.update) Invalid SAMPLER_2D uniform "${uniform.name}" for: ${this.constructor.name}`)
-					}
-				} break
-
-				case gl.SAMPLER_CUBE:
-				{
-					if(typeof value === "string") {
-						value = Engine.ctx.resource(value)
-						this._uniforms[uniform.name] = value
-					}
-					
-					if(!(value instanceof CubeMap)) {
-						console.warn(`(Material.update) Invalid SAMPLER_CUBE uniform "${uniform.name}" for: ${this.constructor.name}`)
-					}
-				} break
+		const envmap = this._uniforms.envmap
+		if(envmap)
+		{
+			console.log("here")
+			if(envmap instanceof CubeMap) {
+				this.define("CUBEMAP", true)
+			}
+			else {
+				this.define("CUBEMAP", false)
+			}
+		}
+		else
+		{
+			if(this._defines.CUBEMAP) {
+				this.define("CUBEMAP", false)
 			}
 		}
 
@@ -309,13 +316,19 @@ export default class Material extends Resource
 
 	set uniforms(uniforms)
 	{
-		this._uniforms = uniforms;
-		this.update();
+		this._uniforms = uniforms
+		this.update()
 	}
 
 	get uniforms() {
 		this.needUpdate = true;
 		return this._uniforms;
+	}
+
+	define(key, value)
+	{
+		this._defines[key] = value
+		this.needCompile = true;
 	}
 }
 

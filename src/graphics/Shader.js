@@ -52,7 +52,7 @@ export default class Shader extends Resource
 			this.imports.lenght = 0;
 		}
 
-		const regexp = /import ([a-zA-Z0-9._-]+)/gm
+		const regexp = /import ([a-zA-Z0-9\/._-]+)/gm
 		
 		let result
 		do 
@@ -124,7 +124,7 @@ export default class Shader extends Resource
 
 			for(let n = this.imports.length - 1; n >= 0; n--) {
 				const shader = this.imports[n]
-				result += shader.src
+				result += shader.src + "\n"
 			}
 
 			this._src = this.originalSrc.slice(0, this.importStrPos) + result + this.originalSrc.slice(this.importStrPos)
