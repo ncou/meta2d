@@ -13,6 +13,5 @@ export default class SkyboxMaterial extends Material
 		super.load(cfg)
 
 		this.depthTest = cfg.depthTest || false
-		this.cullFace = cfg.cullFace || Material.FRONT
 	}
 }

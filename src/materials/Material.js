@@ -283,7 +283,6 @@ export default class Material extends Resource
 		const envmap = this._uniforms.envmap
 		if(envmap)
 		{
-			console.log("here")
 			if(envmap instanceof CubeMap) {
 				this.define("CUBEMAP", true)
 			}

@@ -1,13 +1,14 @@
 attribute vec4 position;
 
-uniform mat4 matrixProjection;
-uniform mat4 matrixView;
-uniform mat4 matrixModel;
+uniform mat4 matrixInverseProjection;
+uniform mat4 matrixTransposeView;
 
 varying vec3 varNormal;
 
 void main()
 {
-	varNormal = position.xyz;
-	gl_Position = matrixProjection * matrixView * matrixModel * position;
+    vec4 unprojected = matrixInverseProjection * position;
+    varNormal = (matrixTransposeView * unprojected).xyz;
+
+    gl_Position = position;
 }
