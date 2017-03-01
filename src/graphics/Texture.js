@@ -1,20 +1,22 @@
 import Engine from "../Engine"
 import Resource from "../resources/Resource"
+import parseHDR from "../loaders/HDR"
 
 export default class Texture extends Resource
 {
 	constructor(cfg)
 	{
-		this.handle = null;
+		this.handle = null
 		this.target = WebGLRenderingContext.TEXTURE_2D
-		this._width = 0;
-		this._height = 0;
-		this._minFilter = 0;
-		this._magFilter = 0;
-		this._wrapS = 0;
-		this._wrapT = 0;
+		this._width = 0
+		this._height = 0
+		this._minFilter = 0
+		this._magFilter = 0
+		this._wrapS = 0
+		this._wrapT = 0
+		this.ext = null
 
-		super(cfg);
+		super(cfg)
 	}
 
 	clear()
@@ -39,26 +41,25 @@ export default class Texture extends Resource
 		this.loading = true;
 
 		if(typeof cfg !== "object") {
-			cfg = { path: cfg };
+			cfg = { path: cfg }
 		}
 
-		let ext
 		const extIndex = cfg.path.lastIndexOf(".")
 		if(extIndex === -1) {
-			ext = "png"
+			this.ext = "png"
 			cfg.path += ".png"
 		}
 		else {
-			ext = cfg.path.slice(extIndex + 1)
+			this.ext = cfg.path.slice(extIndex + 1)
 		}
 
-		if(ext === "dds")
+		if(this.ext === "dds" || this.ext === "hdr")
 		{
 			const xhr = new XMLHttpRequest()
 			xhr.open("GET", cfg.path, true)
 			xhr.responseType = "arraybuffer"
 			xhr.onload = () => {
-				this.updateDDS(xhr.response)
+				this.updateCustom(xhr.response)
 			}
 			xhr.onerror = () => {
 				this.update(null, cfg)
@@ -123,6 +124,20 @@ export default class Texture extends Resource
 		this.loaded = true
 	}
 
+	updateCustom(data)
+	{
+		switch(this.ext)
+		{
+			case "dds":
+				this.updateDDS(data)
+				break
+
+			case "hdr":
+				this.updateHDR(data)
+				break
+		}
+	}
+
 	updateDDS(data)
 	{
 		const gl = Engine.gl
@@ -179,7 +194,7 @@ export default class Texture extends Resource
 
 		Engine.renderer.bindTexture(this.handle)
 
-        for(let n = 0; n < mipmaps; n++) 
+        for(let n = 0; n < mipmaps; n++)
 		{
             const dataLength = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockBytes
             const byteArray = new Uint8Array(data, dataOffset, dataLength)
@@ -195,10 +210,29 @@ export default class Texture extends Resource
 		this.loaded = true
 	}
 
-    uploadDDSLevels(gl, ext, arrayBuffer, loadMipmaps)
+	updateHDR(data)
 	{
+		const result = parseHDR(data)
+		const gl = Engine.gl
 
-    }
+		if(!this.handle) {
+			this.handle = gl.createTexture()
+		}
+
+		this._width = result.width
+		this._height = result.height
+
+		Engine.renderer.bindTexture(this.handle)
+
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, result.width, result.height, 0, gl.RGBA, gl.FLOAT, result.data)
+
+		this.loaded = true
+	}
 
 	get width() {
 		return this._width

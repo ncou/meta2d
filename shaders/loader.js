@@ -12,6 +12,7 @@ import SkyboxVert from "./webgl/skybox-vert.glsl"
 import SkyboxFrag from "./webgl/skybox-frag.glsl"
 import EnvMap from "./webgl/chunks/envmap.glsl"
 import Gamma from "./webgl/chunks/gamma.glsl"
+import Tonemap from "./webgl/chunks/tonemap.glsl"
 
 export default function load(resources)
 {
@@ -23,6 +24,10 @@ export default function load(resources)
 		"envmap.glsl": {
 			type: "Shader",
 			src: EnvMap
+		},
+		"tonemap.glsl": {
+			type: "Shader",
+			src: Tonemap
 		},
 		"basic-vert": {
 			type: "Shader",

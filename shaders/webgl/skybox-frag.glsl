@@ -4,7 +4,10 @@ varying vec3 varNormal;
 
 import envmap.glsl
 import gamma.glsl
+import tonemap.glsl
 
 void main() {
-	gl_FragColor = toGamma(envMap(varNormal));
+	vec4 color = envMap(varNormal);
+	color.rgb = tonemap(color.rgb);
+	gl_FragColor = toGamma(color);
 }

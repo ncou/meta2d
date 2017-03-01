@@ -13,8 +13,6 @@ import LambertMaterial from "./src/materials/LambertMaterial"
 import SkyboxMaterial from "./src/materials/SkyboxMaterial"
 import ReflectionMaterial from "./src/materials/ReflectionMaterial"
 import ResourceManager from "./src/resources/ResourceManager"
-import Cubemap from "./src/resources/Cubemap"
-import HDR from "./src/resources/HDR"
 import Content from "./src/resources/Content"
 import Box from "./src/geometry/Box"
 import Sphere from "./src/geometry/Sphere"
@@ -25,6 +23,6 @@ import Camera from "./src/scene/Camera"
 export default { 
 	Device, Engine, Renderer, Mesh, Texture, CubeMap,
 	Material, BasicMaterial, DebugMaterial, TextureMaterial, LambertMaterial, SkyboxMaterial, ReflectionMaterial,
-	ResourceManager, Cubemap, HDR, Content, 
+	ResourceManager, Content, 
 	Box, Sphere, FullscreenQuad
 }

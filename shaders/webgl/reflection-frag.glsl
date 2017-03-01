@@ -7,6 +7,7 @@ varying vec3 varNormal;
 
 import envmap.glsl
 import gamma.glsl
+import tonemap.glsl
 
 void main()
 {
@@ -16,5 +17,7 @@ void main()
 
 	vec3 reflectionWorld = reflect(-worldEyeDirection, normalize(normal));
 
-	gl_FragColor = toGamma(envMap(reflectionWorld));
+	vec4 color = envMap(reflectionWorld);
+	color.rgb = tonemap(color.rgb);
+	gl_FragColor = toGamma(color);
 }

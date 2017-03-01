@@ -34,12 +34,15 @@ export default class Renderer
 		this.matrixDirty_inverseView = true
 		this.matrixDirty_transposeView = true
 
-		this.projectionTransform = new Matrix4([ 
+		this.projectionTransform = new Matrix4([
 			1.0, 0.0, 0.0, 0.0,
 			0.0, -1.0, 0.0, 0.0,
 			0.0, 0.0, 1.0, 0.0,
 			0.0, 0.0, 0.0, 1.0 ])
-		
+
+		this._exposure = 1.0
+		this._tonemap = Renderer.Tonemap.UNCHARTED2
+
 		// this.camera = new Camera();
 	}
 
@@ -105,7 +108,7 @@ export default class Renderer
         {
             const target = gl.TEXTURE_CUBE_MAP_POSITIVE_X + n
             gl.texImage2D(target, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas)
-        }		
+        }
 	}
 
 	update(tDelta)
@@ -237,7 +240,7 @@ export default class Renderer
 
 							matrix = this.matrixInverseProjection
 						} break
-							
+
 						default:
 							matrix = material._uniforms[uniform.name]
 							break
@@ -304,8 +307,14 @@ export default class Renderer
                 } break
 
 				case gl.FLOAT:
-					gl.uniform1f(uniform.loc, material._uniforms[uniform.name]);
-					break;
+				{
+					if(uniform.name === "exposure") {
+						gl.uniform1f(uniform.loc, this._exposure)
+					}
+					else {
+						gl.uniform1f(uniform.loc, material._uniforms[uniform.name])
+					}
+				} break
 			}
 		}
 	}
@@ -370,7 +379,7 @@ export default class Renderer
 		this.texture = texture;
 	}
 
-	resize(width, height) 
+	resize(width, height)
 	{
 		this.gl.viewport(0, 0, width, height)
 		this.matrixProjection.perspective(0.7853981634, width / height, 0.01, 100.0)
@@ -382,13 +391,13 @@ export default class Renderer
 	extension(id)
 	{
 		let ext = this.extensions[id]
-		if(!ext) 
+		if(!ext)
 		{
 			ext = this.gl.getExtension(id) ||
 				this.gl.getExtension("WEBGL_" + id) ||
 				this.gl.getExtension("MOZ_" + id) ||
 				this.gl.getExtension("MS_" + id)
-			
+
 			if(!ext) {
 				console.warn("Extension not supported: " + id)
 			}
@@ -398,4 +407,29 @@ export default class Renderer
 
 		return ext;
 	}
+
+	set exposure(value) {
+		if(this._exposure === value) { return }
+		this._exposure = value
+	}
+
+	get exposure() {
+		return this._exposure
+	}
+
+	set tonemap(value) {
+		if(this._tonemap === value) { return }
+		this._tonemap = value
+	}
+
+	get tonemap() {
+		return this._tonemap
+	}
+}
+
+Renderer.Tonemap = {
+	NONE: 0,
+	UNCHARTED2: 1,
+	REINHARD: 2,
+	FILMIC: 3
 }

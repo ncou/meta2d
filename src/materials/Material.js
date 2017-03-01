@@ -152,13 +152,21 @@ export default class Material extends Resource
 			this.cleanup()
 		}
 
+		this.define("TONEMAP", Engine.renderer.tonemap)
+
 		let definesOutput = ""
 		if(this._defines)
 		{
 			for(let key in this._defines) {
 				const value = this._defines[key]
-				if(value) {
-					definesOutput += `#define ${key}` + "\n"
+				if(typeof value === "boolean") 
+				{
+					if(value) {
+						definesOutput += `#define ${key}` + "\n"
+					}
+				}
+				else {
+					definesOutput += `#define ${key} ${value}` + "\n"
 				}
 			}
 
@@ -326,7 +334,9 @@ export default class Material extends Resource
 
 	define(key, value)
 	{
+		if(this._defines[key] === value) { return }
 		this._defines[key] = value
+
 		this.needCompile = true;
 	}
 }
