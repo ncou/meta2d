@@ -51,6 +51,7 @@ export default class Time
 		if(this.current - this._fpsCurrent >= 1000) {
 			this._fpsCurrent = this.current;
 			this.fps = this._fps;
+			console.log(this.fps)
 			this._fps = 0;
 		}
 
@@ -80,7 +81,7 @@ export default class Time
 
 	end()
 	{
-		this.fps++;
+		this._fps++;
 		this.prev = this.current;
 	}
 

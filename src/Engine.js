@@ -1,17 +1,26 @@
 
-export default 
+const Engine =
 {
-	clsPtr: null,
+	engineCtxCls: null,
 
 	create(cfg) {
-		const instance = new this.clsPtr(cfg);
+		const instance = new Engine.engineCtxCls(cfg)
+		return instance
 	},
 
-	id: -1,
-	ctx: null,
-	gl: null,
+	resource(id) 
+	{
+		const resource = Engine.resources.map[id]
+		return resource || null
+	},
+
+	settings: null,
 	window: null,
-	renderer: null,
 	input: null,
-	camera: null
+	renderer: null,
+	resources: null,
+
+	state: "init"
 }
+
+export default Engine

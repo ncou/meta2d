@@ -1,14 +1,13 @@
-import Device from "./Device";
+import Device from "./Device"
 
 export default class EngineWindow
 {
-    constructor(settings) 
+    constructor(settings)
     {
 		this.settings = settings || {};
 
 		this.canvas = null;
 		this.canvasParent = null;
-		this.gl = null;
 		this.listeners = {};
 
 		this.width = 0;
@@ -24,30 +23,28 @@ export default class EngineWindow
 
 	create()
 	{
-		if(this.settings.canvas) 
+		if(this.settings.canvas)
 		{
 			this.canvas = this.settings.canvas;
 			this.canvasParent = this.canvas.parentElement;
 		}
-		else 
+		else
 		{
 			this.canvas = document.createElement("canvas");
 			this.canvasParent = document.body;
 			this.canvasParent.appendChild(this.canvas);
 		}
 
-		const canvasStyle = `position:absolute; 
+		const canvasStyle = `position:absolute;
 							overflow:hidden; translateZ(0);
 							-webkit-backface-visibility:hidden;
 							-webkit-perspective: 1000;
-							-webkit-touch-callout: none; 
-							-webkit-user-select: none; 
+							-webkit-touch-callout: none;
+							-webkit-user-select: none;
 							zoom: 1;`;
 		this.canvas.style = canvasStyle;
-		this.canvas.addEventListener("webglcontextlost", this.onContextLost.bind());	
-		this.canvas.addEventListener("webglcontextrestored", this.onContextRestored.bind());	
-
-		this.gl = this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl");
+		this.canvas.addEventListener("webglcontextlost", this.onContextLost.bind());
+		this.canvas.addEventListener("webglcontextrestored", this.onContextRestored.bind())
 
 		this.updateViewport();
 

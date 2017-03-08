@@ -9,6 +9,7 @@ void main()
 {
     vec4 unprojected = matrixInverseProjection * position;
     varNormal = (matrixTransposeView * unprojected).xyz;
+    varNormal.y *= -1.0;
 
     gl_Position = position;
 }

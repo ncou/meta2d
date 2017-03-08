@@ -1,15 +1,16 @@
-import DebugMaterial from "../materials/DebugMaterial";
-import Texture from "../graphics/Texture";
-// import Camera from "../scene/Camera";
-import { Vector2, Vector3, Matrix4 } from "meta-math";
+import Engine from "../Engine"
+import DebugMaterial from "../materials/DebugMaterial"
+import Texture from "../graphics/Texture"
+import Camera from "../scene/Camera"
+import { Vector2, Vector3, Matrix4 } from "meta-math"
 import RenderState from "./RenderState"
 
 export default class Renderer
 {
-	constructor(gl)
+	constructor()
 	{
-		this.gl = gl
 		this.extensions = {}
+		this.gl = null
 
 		this.material = null
 		this.texture = null
@@ -28,6 +29,8 @@ export default class Renderer
 		this.matrixNormal = new Matrix4()
 		this.matrixModel = null
 
+		this.camera = new Camera()
+
 		this.matrixDirty_view = true
 		this.matrixDirty_normal = true
 		this.matrixDirty_inverseProjection = true
@@ -42,32 +45,36 @@ export default class Renderer
 
 		this._exposure = 1.0
 		this._tonemap = Renderer.Tonemap.UNCHARTED2
-
-		// this.camera = new Camera();
 	}
 
 	setup()
 	{
-		const gl = this.gl;
+		const canvas = Engine.window.canvas
+		const settings = {}
+		settings.antialias = (Engine.settings.antialias !== undefined) ? Engine.settings.antialias : true 
+		this.gl = /*canvas.getContext("webgl2", settings) ||*/
+				  canvas.getContext("webgl", settings) ||
+				  canvas.getContext("experimental-webgl", settings)
+		Engine.gl = this.gl
 
 		this.emptyMaterial = new DebugMaterial()
 		this.createEmptyTexture()
 		this.createEmptyCubeMap()
 
-		this.state = new RenderState(gl)
+		this.state = new RenderState(this.gl)
 		this.state.depthTest = true
 
-		gl.clearColor(0.3, 0.3, 0.3, 1.0);
-		gl.depthFunc(gl.LEQUAL);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		const gl = this.gl
+		gl.clearColor(0.3, 0.3, 0.3, 1.0)
+		gl.depthFunc(gl.LEQUAL)
+		// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true)
+        gl.enable(gl.BLEND)
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 		// extensions:
-		this.extension("EXT_sRGB");
-		this.extension("OES_texture_float");
-		this.extension("OES_texture_float_linear");
+		// this.extension("EXT_sRGB")
+		this.extension("OES_texture_float")
+		this.extension("OES_texture_float_linear")
 	}
 
 	createEmptyTexture()

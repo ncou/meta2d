@@ -61,7 +61,7 @@ export default class Shader extends Resource
 			if(result) 
 			{
 				const shaderId = result[1]
-				let shader = Engine.ctx.resource(shaderId)
+				let shader = Engine.resource(shaderId)
 				if(!shader) {
 					console.warn("(Shader.analyseImports) No such shader registered: " + shaderId)
 					break;

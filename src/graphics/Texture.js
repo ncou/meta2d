@@ -90,8 +90,6 @@ export default class Texture extends Resource
 			this.handle = gl.createTexture()
 		}
 
-		const ext = Engine.renderer.extension("EXT_sRGB")
-
 		this._minFilter = cfg.minFilter || Texture.LINEAR
 		this._magFilter = cfg.magFilter || Texture.LINEAR
 
@@ -105,7 +103,8 @@ export default class Texture extends Resource
 		}
 
 		Engine.renderer.bindTexture(this.handle)
-		gl.texImage2D(gl.TEXTURE_2D, 0, ext.SRGB_EXT, ext.SRGB_EXT, gl.UNSIGNED_BYTE, image)
+		// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, image.width, image.height, 0, gl.RGBA8, gl.UNSIGNED_BYTE, image)
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.SRGB8, gl.RGB, gl.UNSIGNED_BYTE, image)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, this._minFilter)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this._magFilter)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this._wrapS)

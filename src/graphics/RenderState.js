@@ -1,3 +1,4 @@
+import Engine from "../Engine"
 
 class RenderState
 {
@@ -12,6 +13,8 @@ class RenderState
 
     set depthTest(value)
     {
+        const gl = Engine.gl
+
         this._depthTest = value
 
         if(value) {

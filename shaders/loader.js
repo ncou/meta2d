@@ -1,3 +1,4 @@
+import Engine from "../src/Engine"
 import BasicVert from "./webgl/basic-vert.glsl"
 import BasicFrag from "./webgl/basic-frag.glsl"
 import DebugVert from "./webgl/debug-vert.glsl"
@@ -14,9 +15,9 @@ import EnvMap from "./webgl/chunks/envmap.glsl"
 import Gamma from "./webgl/chunks/gamma.glsl"
 import Tonemap from "./webgl/chunks/tonemap.glsl"
 
-export default function load(resources)
+export default function load()
 {
-	resources.load({
+	Engine.resources.load({
 		"gamma.glsl": {
 			type: "Shader",
 			src: Gamma
