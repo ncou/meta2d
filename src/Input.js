@@ -22,6 +22,7 @@ export default class Input
 		this.enable = true
 		this.stickyKeys = false
 		this.metaPressed = false
+		this.firstInputEvent = true
 
 		this.inputs = new Array(numTotalKeys)
 		this.touches = []
@@ -125,7 +126,7 @@ export default class Input
 		if(!this.enable) { return }
 
 		const wnd = Engine.window
-		const camera = Engine.renderer.camera
+		const camera = Engine.camera
 
 		this.prevScreenX = this.screenX
 		this.prevScreenY = this.screenY
@@ -151,15 +152,32 @@ export default class Input
 			{
 				const keyCode = domEvent.button + Input.BUTTON_ENUM_OFFSET
 				this.inputs[keyCode] = (eventType === "up") ? 0 : 1
-				inputEvent.deltaX = this.prevScreenX - this.screenX
-				inputEvent.deltaY = this.prevScreenY - this.screenY
+
+				if(this.firstInputEvent) {
+					inputEvent.deltaX = 0
+					inputEvent.deltaY = 0
+					this.firstInputEvent = false
+				}
+				else {
+					inputEvent.deltaX = this.prevScreenX - this.screenX
+					inputEvent.deltaY = this.prevScreenY - this.screenY
+				}
+
 				inputEvent.keyCode = keyCode
 			} break
 
 			case "move":
 			{
-				inputEvent.deltaX = this.prevScreenX - this.screenX
-				inputEvent.deltaY = this.prevScreenY - this.screenY
+				if(this.firstInputEvent) {
+					inputEvent.deltaX = 0
+					inputEvent.deltaY = 0
+					this.firstInputEvent = false
+				}
+				else {
+					inputEvent.deltaX = this.prevScreenX - this.screenX
+					inputEvent.deltaY = this.prevScreenY - this.screenY
+				}
+
 				inputEvent.keyCode = 0
 			} break
 
@@ -193,7 +211,7 @@ export default class Input
 		}
 
 		const wnd = Engine.window
-		const camera = Engine.renderer.camera
+		const camera = Engine.camera
 
 		const changedTouches = domEvent.changedTouches
 		for(let n = 0; n < changedTouches.length; n++)
@@ -245,8 +263,15 @@ export default class Input
 				this.screenX = screenX
 				this.screenY = screenY
 
-				inputEvent.deltaX = this.prevScreenX - this.screenX
-				inputEvent.deltaY = this.prevScreenY - this.screenY
+				if(this.firstInputEvent) {
+					inputEvent.deltaX = 0
+					inputEvent.deltaY = 0
+					this.firstInputEvent = false
+				}
+				else {
+					inputEvent.deltaX = this.prevScreenX - this.screenX
+					inputEvent.deltaY = this.prevScreenY - this.screenY
+				}
 			}
 
 			switch(eventType)
@@ -263,7 +288,7 @@ export default class Input
 		}
 	}
 
-	isDown(keyCode) {
+	pressed(keyCode) {
 		return this.inputs[keyCode]
 	}
 
