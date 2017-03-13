@@ -199,12 +199,6 @@ export default class Renderer
 								this.matrixNormal.fromMatrix4(this._matrixView)
 								this.matrixNormal.invert()
 								this.matrixNormal.transpose()
-
-								var mat = mat3.create()
-								mat3.fromMat4(mat, this._matrixView.m)
-								mat3.invert(mat, mat)
-								mat3.transpose(mat, mat)
-
 								this.matrixDirty_normal = false
 							}
 
