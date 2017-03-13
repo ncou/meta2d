@@ -1,7 +1,15 @@
+import { 
+	isSpace, 
+	isNewline,
+	isDigit,
+	isAlpha,
+	isAlphaNum
+} from "../utils/Utils"
 
 function Token() {
-	this.str = null;
-	this.value = null;
+	this.str = null
+	this.value = null
+	this.line = 0
 }
 
 class Tokenizer
@@ -90,17 +98,25 @@ class Tokenizer
 	{
 		this.token.str = "";
 		this.token.value = null;
+		this.token.line = this.line
 
-		this.nextChar();
+		this.nextChar()
 
 		while(isSpace(this.currChar)) {
-			this.nextChar();
+			this.nextChar()
+		}
+
+		if(this.currChar === "\0") {
+			return this.token
 		}
 
 		do {
-			this.token.str += this.currChar;
-			this.nextChar();
-		} while(!isSpace(this.currChar));
+			this.token.str += this.currChar
+			this.nextChar()
+			if(this.currChar === "\0") {
+				return this.token
+			}
+		} while(!isSpace(this.currChar))
 
 		return this.token;
 	}
@@ -112,13 +128,11 @@ class Tokenizer
 		}
 		else {
 			this.currChar = this.buffer[this.cursor];
+			this.cursor++;
+			if(this.currChar === "\n") {
+				this.line++;
+			}
 		}
-
-		if(this.currChar === "\n") {
-			this.line++;
-		}
-
-		this.cursor++;
 	}
 }
 
@@ -164,14 +178,30 @@ function parseNormals(tokenizer, cache)
 
 function parseFaces(tokenizer, cache) 
 {
-	parseFace(tokenizer, cache);
-	parseFace(tokenizer, cache);
-	parseFace(tokenizer, cache);
+	const line = tokenizer.line
+
+	tokenizer.nextFace()
+	parseFace(tokenizer, cache)
+
+	tokenizer.nextFace()
+	parseFace(tokenizer, cache)
+
+	tokenizer.nextFace()
+	parseFace(tokenizer, cache)
+
+	tokenizer.nextFace()
+	if(tokenizer.token.line === line) {
+		const indices = cache.indices
+		indices.push(indices[indices.length - 1])
+		parseFace(tokenizer, cache)
+		indices.push(indices[indices.length - 5])
+		tokenizer.next()
+	}
 }
 
 function parseFace(tokenizer, cache)
 {
-	const token = tokenizer.nextFace();
+	const token = tokenizer.token
 
 	const index = cache.hashedIndices[token.str];
 	if(index !== undefined) {
@@ -205,7 +235,7 @@ function parseFace(tokenizer, cache)
 	}
 }
 
-export default function load(data)
+function parseOBJ(data)
 {
 	const cache = new Cache();
 	const tokenizer = new Tokenizer(data);
@@ -230,34 +260,9 @@ export default function load(data)
 	return {
 		vertices: cache.verticesUnpacked,
 		indices: cache.indices,
-		uvs: (cache.uvsUnpacked.length > 0) ? cache.uvsUnpacked : null,
+		uv: (cache.uvsUnpacked.length > 0) ? cache.uvsUnpacked : null,
 		normals: (cache.normalsUnpacked.length > 0) ? cache.normalsUnpacked : null
-	};
+	}
 }
 
-function isSpace(c) {
-	return (c === " " || c === "\t" || c === "\r" || c === "\n");
-}
-
-function isNewline(c) {
-	return (c === "\r" || c === "\n");
-}
-
-function isDigit(c) {
-	return (c >= "0" && c <= "9") || (c === ".") || (c === "-") || (c === "+");
-}
-
-function isAlpha(c)
-{
-	return (c >= "a" && c <= "z") ||
-		(c >= "A" && c <= "Z") ||
-		(c == "_" && c <= "$");
-}
-
-function isAlphaNum(c)
-{
-	return (c >= "a" && c <= "z") ||
-		(c >= "A" && c <= "Z") ||
-		(c >= "0" && c <= "9") ||
-		c === "_" || c === "$";
-}
+export default parseOBJ
