@@ -1,8 +1,7 @@
 import Engine from "../Engine"
 import DebugMaterial from "../materials/DebugMaterial"
 import Texture from "../graphics/Texture"
-import Camera from "../scene/Camera"
-import { Vector2, Vector3, Matrix4 } from "meta-math"
+import { Vector2, Vector3, Matrix3, Matrix4, mat3 } from "meta-math"
 import RenderState from "./RenderState"
 
 export default class Renderer
@@ -20,16 +19,15 @@ export default class Renderer
 		this.emptyVec2 = new Vector2()
 		this.emptyVec3 = new Vector3()
 
-		this.matrixEmpty = new Matrix4()
+		this.emptyMatrix3 = new Matrix4()
+		this.emptyMatrix4 = new Matrix4()
 		this.matrixProjection = new Matrix4()
-		this._matrixView = this.matrixEmpty
+		this._matrixView = this.emptyMatrix4
 		this.matrixInverseProjection = new Matrix4()
 		this.matrixInverseView = new Matrix4()
 		this.matrixTransposeView = new Matrix4()
-		this.matrixNormal = new Matrix4()
+		this.matrixNormal = new Matrix3()
 		this.matrixModel = null
-
-		this.camera = new Camera()
 
 		this.matrixDirty_view = true
 		this.matrixDirty_normal = true
@@ -37,11 +35,14 @@ export default class Renderer
 		this.matrixDirty_inverseView = true
 		this.matrixDirty_transposeView = true
 
-		this.projectionTransform = new Matrix4([
-			1.0, 0.0, 0.0, 0.0,
-			0.0, -1.0, 0.0, 0.0,
-			0.0, 0.0, 1.0, 0.0,
-			0.0, 0.0, 0.0, 1.0 ])
+		// TODO
+		// this.projectionTransform = new Matrix4([
+		// 	-1.0, 0.0, 0.0, 0.0,
+		// 	0.0, -1.0, 0.0, 0.0,
+		// 	0.0, 0.0, 1.0, 0.0,
+		// 	0.0, 0.0, 0.0, 1.0 ])
+
+		this.projectionTransform = new Matrix4()
 
 		this._exposure = 1.0
 		this._tonemap = Renderer.Tonemap.UNCHARTED2
@@ -67,12 +68,13 @@ export default class Renderer
 		const gl = this.gl
 		gl.clearColor(0.3, 0.3, 0.3, 1.0)
 		gl.depthFunc(gl.LEQUAL)
-		// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true)
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true)
         gl.enable(gl.BLEND)
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
 		// extensions:
-		// this.extension("EXT_sRGB")
+		this.extension("EXT_sRGB")
 		this.extension("OES_texture_float")
 		this.extension("OES_texture_float_linear")
 	}
@@ -133,7 +135,7 @@ export default class Renderer
 	{
 		const gl = this.gl
 
-		this.matrixModel = matrixModel || this.matrixEmpty
+		this.matrixModel = matrixModel || this.emptyMatrix4
 
 		this.setMaterial(material)
 		this.updateUniforms(material)
@@ -185,6 +187,43 @@ export default class Renderer
 
 			switch(uniform.type)
 			{
+				case gl.FLOAT_MAT3:
+				{
+					let matrix
+
+					switch(uniform.name)
+					{
+						case "matrixNormal":
+						{
+							if(this.matrixDirty_normal) {
+								this.matrixNormal.fromMatrix4(this._matrixView)
+								this.matrixNormal.invert()
+								this.matrixNormal.transpose()
+
+								var mat = mat3.create()
+								mat3.fromMat4(mat, this._matrixView.m)
+								mat3.invert(mat, mat)
+								mat3.transpose(mat, mat)
+
+								this.matrixDirty_normal = false
+							}
+
+							matrix = this.matrixNormal
+						} break
+
+						default:
+							matrix = material._uniforms[uniform.name]
+							break
+					}
+
+					if(!matrix) {
+						gl.uniformMatrix3fv(uniform.loc, false, this.emptyMatrix3.m)
+					}
+					else {
+						gl.uniformMatrix3fv(uniform.loc, false, matrix.m)
+					}
+				} break
+
 				case gl.FLOAT_MAT4:
 				{
 					let matrix
@@ -203,23 +242,11 @@ export default class Renderer
 							matrix = this.matrixModel
 							break
 
-						case "matrixNormal":
-						{
-							if(this.matrixDirty_normal) {
-								this.matrixNormal.copy(this._matrixView)
-								this.matrixNormal.inverse()
-								this.matrixNormal.transpose()
-								this.matrixDirty_normal = false
-							}
-
-							matrix = this.matrixNormal
-						} break
-
 						case "matrixInverseView":
 						{
 							if(this.matrixDirty_inverseView) {
 								this.matrixInverseView.copy(this._matrixView)
-								this.matrixInverseView.inverse()
+								this.matrixInverseView.invert()
 								this.matrixDirty_inverseView = false
 							}
 
@@ -241,7 +268,7 @@ export default class Renderer
 						{
 							if(this.matrixDirty_inverseProjection) {
 								this.matrixInverseProjection.copy(this.matrixProjection)
-								this.matrixInverseProjection.inverse()
+								this.matrixInverseProjection.invert()
 								this.matrixDirty_inverseProjection = false
 							}
 
@@ -254,7 +281,7 @@ export default class Renderer
 					}
 
 					if(!matrix) {
-						gl.uniformMatrix4fv(uniform.loc, false, this.matrixEmpty.m)
+						gl.uniformMatrix4fv(uniform.loc, false, this.emptyMatrix4.m)
 					}
 					else {
 						gl.uniformMatrix4fv(uniform.loc, false, matrix.m)
@@ -370,10 +397,17 @@ export default class Renderer
 	}
 
 	set matrixView(matrix) {
-		this._matrixView = matrix || this.matrixEmpty
+		this._matrixView = matrix || this.emptyMatrix4
 		this.matrixDirty_normal = true
 		this.matrixDirty_inverseView = true
 		this.matrixDirty_transposeView = true
+	}
+
+	get matrixView() {
+		this.matrixDirty_normal = true
+		this.matrixDirty_inverseView = true
+		this.matrixDirty_transposeView = true
+		return this._matrixView
 	}
 
 	bindTexture(texture)
