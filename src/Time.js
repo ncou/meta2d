@@ -49,10 +49,9 @@ export default class Time
 
 		// Update FPS:
 		if(this.current - this._fpsCurrent >= 1000) {
-			this._fpsCurrent = this.current;
-			this.fps = this._fps;
-			console.log(this.fps)
-			this._fps = 0;
+			this._fpsCurrent = this.current
+			this.fps = this._fps
+			this._fps = 0
 		}
 
 		this.updating = true;
