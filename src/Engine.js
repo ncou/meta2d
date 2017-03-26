@@ -185,6 +185,8 @@ meta.engine =
 
 	_handleReady: function()
 	{
+		if(this.flags & this.Flag.READY) { return }
+
 		this.flags |= this.Flag.LOADED;
 		this.readyPlugins();
 
