@@ -85,13 +85,11 @@ export default class ResourceManager
 
 	addLoad(resource) {
 		this.numToLoad++
-		console.log("addLoad", resource.id, this.numToLoad)
 	}
 
 	removeLoad(resource)
 	{
 		this.numToLoad--
-		console.log("removeLoad", resource.id, this.numToLoad)
 
 		if(this.numToLoad < 0) {
 			console.error("(ResourceManager.handleResourceEvent) Negative `numToLoad` value - this should not happen")
