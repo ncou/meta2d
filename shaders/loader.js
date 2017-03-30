@@ -7,10 +7,14 @@ import TextureVert from "./webgl/texture-vert.glsl"
 import TextureFrag from "./webgl/texture-frag.glsl"
 import LambertVert from "./webgl/lambert-vert.glsl"
 import LambertFrag from "./webgl/lambert-frag.glsl"
+import PhongVert from "./webgl/phong-vert.glsl"
+import PhongFrag from "./webgl/phong-frag.glsl"
 import ReflectionVert from "./webgl/reflection-vert.glsl"
 import ReflectionFrag from "./webgl/reflection-frag.glsl"
 import SkyboxVert from "./webgl/skybox-vert.glsl"
 import SkyboxFrag from "./webgl/skybox-frag.glsl"
+import PBRVert from "./webgl/pbr-vert.glsl"
+import PBRFrag from "./webgl/pbr-frag.glsl"
 import EnvMap from "./webgl/chunks/envmap.glsl"
 import Gamma from "./webgl/chunks/gamma.glsl"
 import Tonemap from "./webgl/chunks/tonemap.glsl"
@@ -62,6 +66,14 @@ export default function load()
 			type: "Shader",
 			src: LambertFrag
 		},
+		"phong-vert": {
+			type: "Shader",
+			src: PhongVert
+		},
+		"phong-frag": {
+			type: "Shader",
+			src: PhongFrag
+		},
         "reflection-vert": {
             type: "Shader",
             src: ReflectionVert
@@ -77,6 +89,14 @@ export default function load()
         "skybox-frag": {
             type: "Shader",
             src: SkyboxFrag
+		},
+        "pbr-vert": {
+            type: "Shader",
+            src: PBRVert
+        },
+        "pbr-frag": {
+            type: "Shader",
+            src: PBRFrag
 		},
 	});
 }

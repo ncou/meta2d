@@ -1,5 +1,6 @@
 import Engine from "../Engine"
 import DebugMaterial from "../materials/DebugMaterial"
+import TextureMaterial from "../materials/TextureMaterial"
 import Texture from "../graphics/Texture"
 import { Vector2, Vector3, Matrix3, Matrix4, mat3 } from "meta-math"
 import RenderState from "./RenderState"
@@ -19,6 +20,7 @@ export default class Renderer
 		this.emptyVec2 = new Vector2()
 		this.emptyVec3 = new Vector3()
 
+		this.tmpMatrix4 = new Matrix4()
 		this.emptyMatrix3 = new Matrix4()
 		this.emptyMatrix4 = new Matrix4()
 		this.matrixProjection = new Matrix4()
@@ -61,6 +63,8 @@ export default class Renderer
 		this.emptyMaterial = new DebugMaterial()
 		this.createEmptyTexture()
 		this.createEmptyCubeMap()
+
+		this.spriteMaterial = new TextureMaterial()
 
 		this.state = new RenderState(this.gl)
 		this.state.depthTest = true
@@ -127,8 +131,13 @@ export default class Renderer
 
 	render(tDelta)
 	{
-		const gl = this.gl;
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		const gl = this.gl
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		const nodes = Engine.scene.nodes
+		for(let n = 0; n < nodes.length; n++) {
+			nodes[n].draw()
+		}
 	}
 
 	draw(mesh, material, matrixModel)
@@ -195,13 +204,9 @@ export default class Renderer
 					{
 						case "matrixNormal":
 						{
-							if(this.matrixDirty_normal) {
-								this.matrixNormal.fromMatrix4(this._matrixView)
-								this.matrixNormal.invert()
-								this.matrixNormal.transpose()
-								this.matrixDirty_normal = false
-							}
-
+							this.tmpMatrix4.copy(this.matrixView)
+							this.tmpMatrix4.mul(this.matrixModel)
+							this.matrixNormal.normalFromMatrix4(this.tmpMatrix4)
 							matrix = this.matrixNormal
 						} break
 

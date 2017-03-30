@@ -4,9 +4,9 @@ import Time from "./Time"
 import EngineWindow from "./EngineWindow"
 import ResourceManager from "./resources/ResourceManager"
 import Renderer from "./graphics/Renderer"
-import Camera from "./scene/Camera"
 import Input from "./Input"
 import loadCoreShaders from "../shaders/loader"
+import Scene from "./scene/Scene"
 
 class EngineContext
 {
@@ -21,6 +21,9 @@ class EngineContext
 		Engine.time = new Time()
 		Engine.resources = new ResourceManager()
 
+		Engine.scene = new Scene()
+		Engine.scene.enable = true
+
 		this.setup()
 	}
 
@@ -33,6 +36,16 @@ class EngineContext
 		Engine.window.on("resize", this.handleWindowResize.bind(this))
 		this.handleWindowResize(this.window)
 
+		if(Engine.settings.store) {
+			const data = Engine.settings.store.data
+			if(data.assets) {
+				Engine.resources.load(data.assets)
+			}
+			if(data.hierarchy) {
+				
+			}
+		}
+
 		Engine.resources.load(this.cfg.resources)
 		Engine.resources.on("load", () => {
 			this.ready()
@@ -41,6 +54,8 @@ class EngineContext
 		this.renderFunc = () => {
 			this.render()
 		}
+
+		Engine.scene.load(this.cfg.hierarchy)
 
 		if(this.cfg.setup) {
 			this.cfg.setup()
@@ -73,7 +88,7 @@ class EngineContext
 		}
 
 		Engine.renderer.update(Engine.time.deltaF)
-		// Engine.renderer.render(Engine.time.deltaF)
+		Engine.renderer.render(Engine.time.deltaF)
 
 		if(this.cfg.render) {
 			this.cfg.render(Engine.time.deltaF)

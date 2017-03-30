@@ -155,4 +155,18 @@ export default class EngineWindow
 			buffer[n](this);
 		}
 	}
+
+	set pointerLocked(value) 
+	{
+		if(value) {
+			Device.pointerLock(this.canvas)
+		}
+		else {
+			Device.pointerLock(null)
+		}
+	}
+
+	get pointerLocked() {
+		return (Device.pointerLockElement === this.canvas)
+	}
 }

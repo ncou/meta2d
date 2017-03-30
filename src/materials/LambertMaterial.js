@@ -3,7 +3,7 @@ import Material from "./Material"
 export default class LambertMaterial extends Material
 {
 	constructor(cfg) {
-		super(cfg)
+		super(cfg || {})
 	}
 
 	load(cfg) {

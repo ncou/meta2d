@@ -174,8 +174,8 @@ export default class Input
 					this.firstInputEvent = false
 				}
 				else {
-					inputEvent.deltaX = this.prevScreenX - this.screenX
-					inputEvent.deltaY = this.prevScreenY - this.screenY
+					inputEvent.deltaX = -domEvent.movementX
+					inputEvent.deltaY = -domEvent.movementY
 				}
 
 				inputEvent.keyCode = 0

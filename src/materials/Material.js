@@ -226,6 +226,7 @@ export default class Material extends Resource
 
 		const success = gl.getShaderParameter(instance, gl.COMPILE_STATUS)
 		if(!success) {
+			console.log(defines + shader.src)
 			console.warn("(Shader.compile) [" + this.getStrShaderType(type) + ":" + shader.id + "] " + gl.getShaderInfoLog(instance))
 			return null
 		}
@@ -343,5 +344,5 @@ export default class Material extends Resource
 
 const webgl = WebGLRenderingContext
 Material.FRONT = webgl.BACK
-Material.BACK = webgl.FRONT
+Material.BACK = webgl.BACK
 Material.FRONT_AND_BACK = webgl.FRONT_AND_BACK

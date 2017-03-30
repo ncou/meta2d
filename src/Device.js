@@ -1,14 +1,18 @@
 
-const listeners = {};
-let str_fullscreen = null;
-let str_fullscreenEnabled = null;
-let str_fullscreenElement = null;
-let str_onfullscreenchange = null;
-let str_onfullscreenerror = null;
-let str_exitFullscreen = null;
-let str_requestFullscreen = null;
-let str_hidden = null;
-let str_visibilityChange = null;
+const listeners = {}
+let str_fullscreen = null
+let str_fullscreenEnabled = null
+let str_fullscreenElement = null
+let str_onfullscreenchange = null
+let str_onfullscreenerror = null
+let str_exitFullscreen = null
+let str_requestFullscreen = null
+let str_hidden = null
+let str_visibilityChange = null
+let str_requestPointerLock = null
+let str_exitPointerLock = null
+let str_onpointerlockchange = null
+let str_pointerLockElement = null
 
 const Device = 
 {
@@ -21,8 +25,28 @@ const Device =
 	mobile: false,
 	portrait: false,
 	visible: true,
+	pointerlock: false,
 	audioFormats: [],
 	backingStoreRatio: 1,
+
+	pointerLock(element)
+	{
+		if(!Device.supports.pointerLock) { return }
+
+		if(element) {
+			element[str_requestPointerLock]()
+		}
+		else {
+			document[str_exitPointerLock]()
+		}
+	},
+
+	get pointerLockElement() 
+	{
+		if(!Device.supports.pointerLock) { return null }
+
+		return document[str_pointerLockElement]
+	},
 
 	set fullscreen(element) 
 	{
@@ -107,18 +131,19 @@ function emit(event, arg)
 
 function load()
 {
-	checkBrowser();
-	checkMobileAgent();
-	checkCanvas();
-	checkWebGL();
-	checkBackingStoreRatio();
-	checkAudioFormats();
-	checkAudioAPI();
-	checkPageVisibility();
-	checkFullscreen();
-	checkConsoleCSS();
-	checkFileAPI();
-	checkFileSystemAPI();
+	checkBrowser()
+	checkMobileAgent()
+	checkCanvas()
+	checkWebGL()
+	checkBackingStoreRatio()
+	checkAudioFormats()
+	checkAudioAPI()
+	checkPageVisibility()
+	checkFullscreen()
+	checkConsoleCSS()
+	checkFileAPI()
+	checkFileSystemAPI()
+	checkPointerLock()
 
 	Device.supports.onloadedmetadata = (typeof window.onloadedmetadata === "object");
 	Device.supports.onkeyup = (typeof window.onkeyup === "object");
@@ -425,22 +450,27 @@ function supportPerformanceNow()
 
 function addEventListeners()
 {
-	window.addEventListener("resize", onResize, false);
-	window.addEventListener("orientationchange", onOrientationChange, false);	
+	window.addEventListener("resize", onResize, false)
+	window.addEventListener("orientationchange", onOrientationChange, false);
 
 	if(Device.supports.pageVisibility) {
-		Device.visible = !document[str_hidden];
-		document.addEventListener(str_visibilityChange, onVisibilityChange);
+		Device.visible = !document[str_hidden]
+		document.addEventListener(str_visibilityChange, onVisibilityChange)
 	}
 	else {
-		window.addEventListener("focus", onFocus);
-		window.addEventListener("blur", onBlur);
+		window.addEventListener("focus", onFocus)
+		window.addEventListener("blur", onBlur)
 	}
 
 	if(Device.supports.fullscreen) {
-		document.addEventListener(str_onfullscreenChange, onFullscreenChange);
-		document.addEventListener(str_onfullscreenerror, onFullscreenError);
+		document.addEventListener(str_onfullscreenChange, onFullscreenChange)
+		document.addEventListener(str_onfullscreenerror, onFullscreenError)
 	}
+
+	if(Device.supports.pointerLock) {
+		document.addEventListener(str_onpointerlockchange, onPointerLockChange)
+	}
+	
 }
 
 function onResize(domEvent)
@@ -495,4 +525,46 @@ function onFullscreenChange(domEvent) {
 
 function onFullscreenError(domEvent) {
 	console.error("Fullscreen denied.");
+}
+
+function onPointerLockChange(domEvent) {
+	
+}
+
+function checkPointerLock() 
+{
+	const canvas = HTMLCanvasElement.prototype
+
+	if(canvas.requestPointerLock !== undefined) {
+		str_requestPointerLock = "requestPointerLock"
+	}
+	else if(document[Device.vendor + "RequestPointerLock"] !== undefined) {
+		str_requestPointerLock = Device.vendor + "RequestPointerLock"
+	}
+	else {
+		return
+	}
+
+	Device.supports.pointerLock = true
+
+	if(document.exitPointerLock !== undefined) {
+		str_exitPointerLock = "exitPointerLock"
+	}
+	else if(document[Device.vendor + "ExitPointerLock"] !== undefined) {
+		str_exitPointerLock = Device.vendor + "ExitPointerLock"
+	}
+
+	if(document.onpointerlockchange !== undefined) {
+		str_onpointerlockchange = "pointerlockchange"
+	}
+	else if(document["on" + Device.vendor + "pointerlockchange"] !== undefined) {
+		str_onpointerlockchange = Device.vendor + "pointerlockchange"
+	}
+
+	if(document.pointerLockElement !== undefined) {
+		str_pointerLockElement = "pointerLockElement"
+	}
+	else if(document[Device.vendor + "PointerLockElement"] !== undefined) {
+		str_pointerLockElement = Device.vendor + "PointerLockElement"
+	}
 }
