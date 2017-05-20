@@ -15,6 +15,7 @@ meta.component("Component.Anim",
 		}
 
 		this.texture = texture;
+		this._frame = 0
 
 		if(texture.frames > 1)
 		{
