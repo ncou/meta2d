@@ -235,8 +235,8 @@ meta.class("Input.Manager",
 
 		this.prevScreenX = this.screenX;
 		this.prevScreenY = this.screenX;
-		this.screenX = ((event.pageX - this.engine.offsetLeft) * this.engine.scaleX) * this.engine.ratio;
-		this.screenY = ((event.pageY - this.engine.offsetTop) * this.engine.scaleY) * this.engine.ratio;
+		this.screenX = ((event.pageX - this.engine.offsetLeft) / this.engine.scaleX) * this.engine.ratio;
+		this.screenY = ((event.pageY - this.engine.offsetTop) / this.engine.scaleY) * this.engine.ratio;
 		this.x = (this.screenX * camera.zoomRatio) + camera.volume.x | 0;
 		this.y = (this.screenY * camera.zoomRatio) + camera.volume.y | 0;
 
@@ -279,8 +279,8 @@ meta.class("Input.Manager",
 		var camera = scope.camera;
 		this.prevScreenX = this.screenX;
 		this.prevScreenY = this.screenY;		
-		this.screenX = ((event.pageX - this.engine.offsetLeft) * this.engine.scaleX) * this.engine.ratio;
-		this.screenY = ((event.pageY - this.engine.offsetTop) * this.engine.scaleY) * this.engine.ratio;
+		this.screenX = ((event.pageX - this.engine.offsetLeft) / this.engine.scaleX) * this.engine.ratio;
+		this.screenY = ((event.pageY - this.engine.offsetTop) / this.engine.scaleY) * this.engine.ratio;
 		this.x = (this.screenX * camera.zoomRatio) + camera.volume.x | 0;
 		this.y = (this.screenY * camera.zoomRatio) + camera.volume.y | 0;
 
@@ -316,8 +316,8 @@ meta.class("Input.Manager",
 		var camera = scope.camera;
 		this.prevScreenX = this.screenX;
 		this.prevScreenY = this.screenY;
-		this.screenX = ((event.pageX - this.engine.offsetLeft) * this.engine.scaleX) * this.engine.ratio;
-		this.screenY = ((event.pageY - this.engine.offsetTop) * this.engine.scaleY) * this.engine.ratio;
+		this.screenX = ((event.pageX - this.engine.offsetLeft) / this.engine.scaleX) * this.engine.ratio;
+		this.screenY = ((event.pageY - this.engine.offsetTop) / this.engine.scaleY) * this.engine.ratio;
 		this.x = (this.screenX * camera.zoomRatio) + camera.volume.x | 0;
 		this.y = (this.screenY * camera.zoomRatio) + camera.volume.y | 0;
 
