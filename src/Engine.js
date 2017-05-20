@@ -591,8 +591,8 @@ meta.engine =
 		this.canvas.style.height = (height * this.scaleY) + "px";
 
 		if(this._center) {
-			this.canvas.style.left = Math.floor((window.innerWidth - width) * 0.5) + "px";
-			this.canvas.style.top = Math.floor((window.innerHeight - height) * 0.5) + "px";	
+			this.canvas.style.left = Math.floor((window.innerWidth - (width * this.scaleX)) * 0.5) + "px";
+			this.canvas.style.top = Math.floor((window.innerHeight - (height * this.scaleY)) * 0.5) + "px";	
 		}
 
 		this.updateImageSmoothing();
