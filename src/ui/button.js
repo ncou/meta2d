@@ -70,3 +70,5 @@ export default class Button extends Entity.Geometry
 		return this._label;
 	}
 }
+
+window.UI = { Button }
