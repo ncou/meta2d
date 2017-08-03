@@ -292,14 +292,20 @@ meta.Camera.prototype =
 		this.updateView();
 	},
 
-	follow: function(entity)
+	follow(entity)
 	{
-		if(!(entity instanceof Entity.Geometry)) {
-			console.warn("(meta.Camera.follow): Invalid entity - should be part of Entity.Geometry");
-			return;
-		}
+		if(entity)
+		{
+			if(!(entity instanceof Entity.Geometry)) {
+				console.warn("(meta.Camera.follow): Invalid entity - should be part of Entity.Geometry")
+				return
+			}
 
-		this._followEntity = entity;
+			this._followEntity = entity
+		}
+		else {
+			this._followEntity = null
+		}
 	},
 
 	set x(value)
