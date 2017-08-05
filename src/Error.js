@@ -1,6 +1,6 @@
-"use strict";
+import Device from "./Device"
 
-if(meta.device.mobile)
+if(Device.mobile)
 {
 	window.onerror = function(message, file, lineNumber) {
 		alert(file + ": " + lineNumber + " " + message);

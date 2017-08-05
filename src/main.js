@@ -1,7 +1,8 @@
 import "./meta";
 import "./Class";
-import "./Engine";
-import "./Device";
+import Engine from "./Engine"
+import "./EngineWindow";
+import Device from "./Device"
 import "./Error";
 import "./Utilities";
 import "./Signal";
@@ -71,4 +72,48 @@ import "./tween/Link.js";
 import "./Loading.js";
 import "./Loader.js";
 
-export default { Tab, Text, Button };
+Engine.create = function(cfg)
+{
+	cfg = cfg || {}
+
+	Engine.cfg = cfg
+
+	// Engine.cfg = cfg
+	// Engine.settings = cfg.settings || {}
+	// Engine.time = new Time()
+	// Engine.window = new EngineWindow()
+	// Engine.input = new Input()
+	// Engine.viewport = new Viewport()
+	// Engine.layer = new Layer()
+	// Engine.renderer = new Renderer()
+	// Engine.resources = new ResourceManager()
+
+	// Engine.camera = Engine.viewport.camera
+	// Engine.camera.draggable = true
+
+	Engine.init = cfg.init || null
+	Engine.setup = cfg.setup || null
+	Engine.ready = cfg.ready || null
+	Engine.update = cfg.update || null
+	Engine.render = cfg.render || null
+
+	if(Engine.init) {
+		Engine.init()
+	}
+
+	meta.engine.create()
+
+	// loadCoreShaders()
+	// Engine.resources.load(cfg.assets)
+	
+	return Engine
+}
+
+
+export default { 
+	Engine, 
+	Device,
+	Tab, 
+	Text, 
+	Button 
+}

@@ -2,8 +2,7 @@
 
 window.meta = 
 {
-	version: "0.83 dev",
-	importUrl: "http://meta2d.com/store/",
+	version: "0.84",
 
 	device: null,
 	resources: null,
@@ -45,12 +44,6 @@ window.meta =
 		metaTagsAdded: false,
 		timerIndex: 0,
 
-		createFuncs: [],
-		initFuncs: [], 
-		preloadFuncs: [],
-		loadFuncs: [], 
-		readyFuncs: [],
-
 		view: null,
 		views: {},
 
@@ -64,54 +57,6 @@ window.meta =
 
 		infoView: null
 	},
-
-	set onCreate(func) 
-	{
-		this.cache.createFuncs.push(func);
-		if(this.engine && this.engine.inited) {
-			func();
-		}
-	},	
-
-	set onInit(func) 
-	{
-		this.cache.initFuncs.push(func);
-		if(this.engine && this.engine.inited) {
-			func();
-		}
-	},
-
-	set onPreload(func)
-	{
-		this.cache.preloadFuncs.push(func);
-		if(this.engine && this.engine.preloaded) {
-			func();
-		}
-	},
-
-	set onLoad(func) 
-	{
-		this.cache.loadFuncs.push(func);
-		if(this.engine && this.engine.loaded) {
-			func();
-		}
-	},
-
-	set onReady(func) 
-	{
-		this.cache.readyFuncs.push(func);
-		if(this.engine && this.engine.ready) {
-			func();
-		}
-	},
-
-	set onUpdate(func) {
-		this.engine.updateFuncs.push(func);
-	},
-
-	set onRender(func) {
-		this.engine.renderFuncs.push(func);
-	},	
 
 	set debug(value) 
 	{
@@ -130,10 +75,5 @@ window.meta =
 
 	get debug() { 
 		return this.cache.debug; 
-	},
-
-	loadCfg: function(cfg)
-	{
-		console.log(cfg);
 	}
-};
+}

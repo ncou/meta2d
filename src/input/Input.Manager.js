@@ -1,13 +1,5 @@
-"use strict";
+import Device from "../Device"
 
-/**
- * @property keys {Array} Buffer with flags if key is pressed.
- * @property inputs {Array} Buffer with flags if input is pressed.
- * @property blockInput {boolean} Flag if input should be blocked.
- * @property stickyKeys {boolean} Flag if keys are sticky. (Input is not repeated if user holds key)
- * @property numKeys {number} Number of keys supported.
- * @property numInputs {number} Number of inputs supported. (Touches or mouse buttons)
- */
 meta.class("Input.Manager",
 {
 	init: function()
@@ -65,11 +57,11 @@ meta.class("Input.Manager",
 		window.addEventListener("touchcancel", function(event) { self.handleTouchUp(event); });
 		window.addEventListener("touchleave", function(event) { self.handleTouchUp(event); });
 
-		if(meta.device.support.onkeydown)	{
+		if(Device.supports.onkeydown) {
 			window.addEventListener("keydown", function(event) { self.handleKeyDown(event); });
 		}
 
-		if(meta.device.support.onkeyup)	{
+		if(Device.supports.onkeyup)	{
 			window.addEventListener("keyup", function(event) { self.handleKeyUp(event); });
 		}
 	},

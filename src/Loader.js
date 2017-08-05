@@ -1,17 +1,3 @@
-"use strict";
-
-/**
- * Creates and initializes engine in scope.
- * @function
- */
-meta.createEngine = function()
-{
-	meta.onDomLoad(function() {
-		meta.classLoaded();
-		if(!meta.engine.autoInit) { return; }
-		meta.engine.create();
-	});
-};
 
 /**
  * Load script. Scripts will be loaded in synchronous order.
@@ -142,5 +128,3 @@ meta.import = function(path)
 
 	meta.loadScript(path, null);
 };
-
-meta.createEngine();

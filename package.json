@@ -1,7 +1,7 @@
 {
   "name": "engine",
   "version": "1.0.0",
-  "description": "META v0.82\r ====",
+  "description": "META",
   "main": "src/main.js",
   "directories": {
     "example": "examples"

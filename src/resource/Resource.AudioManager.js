@@ -1,4 +1,4 @@
-"use strict";
+import Device from "../Device"
 
 meta.class("Resource.AudioManager", 
 {
@@ -6,7 +6,7 @@ meta.class("Resource.AudioManager",
 	{
 		// Audio
 		var audioProto = Resource.Sound.prototype;
-		if(meta.device.audioAPI && meta.flags.audioAPI) 
+		if(Device.supports.audioAPI && meta.flags.audioAPI) 
 		{
 			this.context = new AudioContext();
 			this.gainNode = this.context.createGain();
@@ -19,7 +19,7 @@ meta.class("Resource.AudioManager",
 			audioProto._createInstance = audioProto._createInstance_WebAudio;
 			audioProto.steps = 2;
 
-			if(meta.device.support.consoleCSS) 
+			if(Device.supports.consoleCSS) 
 			{
 				console.log("%cAudio: %cWebAudio ", 
 					"font-weight: bold; padding: 2px 0 2px 0;", 
@@ -38,7 +38,7 @@ meta.class("Resource.AudioManager",
 			audioProto._createInstance = audioProto._createInstance_Audio;
 			audioProto._syncLoading = true;
 
-			if(meta.device.support.consoleCSS) 
+			if(Device.supports.consoleCSS) 
 			{
 				console.log("%cAudio: %c<audio> ", 
 					"font-weight: bold; padding: 2px 0 1px 0; width: 500px;", 
