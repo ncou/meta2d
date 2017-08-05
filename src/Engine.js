@@ -1,10 +1,13 @@
 
-const Engine = {
+const Engine = 
+{
 	init: null,
 	setup: null,
 	ready: null,
 	update: null,
-	render: null
+	render: null,
+
+	input: null,
 }
 
 export default Engine

@@ -13,6 +13,7 @@ import "./Controller";
 import "./Timer";
 import "./Enum";
 import "./Macros";
+import Input from "./Input"
 import "./utils/Ajax";
 import "./utils/Tokenizer";
 import "./math/Math";
@@ -31,8 +32,6 @@ import "./resource/Resource.Sound.js";
 import "./resource/Resource.SpriteSheet.js";
 import "./resource/Resource.Font.js";
 import "./resource/Resource.SVG.js";
-import "./input/Enum";
-import "./input/Input.Manager.js";
 import "./entity/Enum";
 import "./entity/Entity.Geometry.js";
 import "./entity/Entity.Text.js";
@@ -82,7 +81,6 @@ Engine.create = function(cfg)
 	// Engine.settings = cfg.settings || {}
 	// Engine.time = new Time()
 	// Engine.window = new EngineWindow()
-	// Engine.input = new Input()
 	// Engine.viewport = new Viewport()
 	// Engine.layer = new Layer()
 	// Engine.renderer = new Renderer()
@@ -113,6 +111,7 @@ Engine.create = function(cfg)
 export default { 
 	Engine, 
 	Device,
+	Input,
 	Tab, 
 	Text, 
 	Button 

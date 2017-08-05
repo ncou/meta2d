@@ -228,7 +228,7 @@ const checkBackingStoreRatio = function()
 	}
 }
 
-const checkCanvas= function() {
+const checkCanvas = function() {
 	Device.supports.canvas = !!window.CanvasRenderingContext2D;
 }
 

@@ -1,5 +1,6 @@
 import Engine from "./Engine"
 import Device from "./Device"
+import Input from "./Input"
 
 meta.engine = 
 {
@@ -45,7 +46,6 @@ meta.engine =
 		meta.camera = new meta.Camera();
 		meta.world = new meta.World(0, 0);
 		meta.resources = new Resource.Manager();
-		meta.input = new Input.Manager();
 		meta.physics = new Physics.Manager();
 		meta.steering = new Steering.Manager();
 
@@ -131,10 +131,10 @@ meta.engine =
 		}
 	},
 
-	_handlePreload: function()
+	_handlePreload()
 	{
 		this.meta.renderer.load();
-		this.meta.input.onDown.add(this.handleKeyDown, this);
+		Input.on("keydown", this.handleKeyDown.bind(this))
 
 		var cache = meta.cache;
 		var masterView = meta.cache.view;

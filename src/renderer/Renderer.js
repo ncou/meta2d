@@ -1,4 +1,4 @@
-"use strict";
+import Input from "../Input"
 
 meta.class("meta.Renderer", 
 {
@@ -66,10 +66,10 @@ meta.class("meta.Renderer",
 			onHoverExit: 	meta.createChannel(Entity.Event.HOVER_EXIT)
 		};
 
-		meta.input.onDown.add(this.onInputDown, this, meta.Priority.HIGH);
-		meta.input.onUp.add(this.onInputUp, this, meta.Priority.HIGH);
-		meta.input.onMove.add(this.onInputMove, this, meta.Priority.HIGH);
-		meta.input.onDbClick.add(this.onInputDbClick, this, meta.Priority.HIGH);
+		Input.on("keydown", this.onInputDown.bind(this))
+		Input.on("keyup", this.onInputDown.bind(this))
+		Input.on("move", this.onInputDown.bind(this))
+		Input.on("dblclick", this.onInputDown.bind(this))
 
 		meta.engine.onAdapt.add(this.onAdapt, this);
 		meta.camera.onResize.add(this.onCameraResize, this);
