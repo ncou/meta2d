@@ -1,6 +1,7 @@
 import Engine from "./Engine"
 import Device from "./Device"
 import { Input, KeyCode } from "./Input"
+import Time from "./Time"
 import Flags from "./Flags"
 
 meta.engine = 
@@ -184,8 +185,6 @@ meta.engine =
 	{
 		var n, num;
 
-		this._updateTimers(meta.time.delta);
-
 		if(this.flags & this.Flag.READY)
 		{
 			num = this.controllersReady.length;
@@ -229,6 +228,9 @@ meta.engine =
 	render: function()
 	{
 		this.time.frameIndex++;
+
+		Time.start()
+
 		var tNow = Date.now();
 
 		// Calculate tDelta:
@@ -273,71 +275,10 @@ meta.engine =
 		this._fpsCounter++;
 		this.time.current = tNow;
 
+		Time.end()
+
 		requestAnimationFrame(this._renderLoop);
 	},
-
-	_updateTimers: function(tDelta)
-	{
-		var timer, index, n;
-		var numTimers = this.timers.length;
-		var numRemove = this.timersRemove.length;
-
-		if(numRemove > 0) 
-		{
-			var itemsLeft = numTimers - numRemove;
-			if(itemsLeft > 0)
-			{
-				var index;
-				for(var n = 0; n < numRemove; n++) 
-				{
-					index = this.timers.indexOf(this.timersRemove[n]);
-					if(index < itemsLeft) {
-						this.timers.splice(index, 1);
-					}
-					else {
-						this.timers.pop();
-					}
-				}
-			}
-			else {
-				this.timers.length = 0;
-			}
-
-			numTimers = itemsLeft;
-			this.timersRemove.length = 0;
-		}		
-
-		for(n = 0; n < numTimers; n++)
-		{
-			timer = this.timers[n];
-			if(timer.paused) { continue; }
-
-			timer.tAccumulator += tDelta;
-
-			while(timer.tAccumulator >= timer.tDelta)
-			{
-				timer.tAccumulator -= timer.tDelta;
-
-				if(timer.numTimes !== 0) {
-					timer.func.call(timer.owner, timer);
-				}
-
-				timer.tStart += timer.tDelta;
-
-				if(timer.numTimes !== -1)
-				{
-					timer.numTimes--;
-
-					if(timer.numTimes <= 0) 
-					{
-						this.timersRemove.push(timer);
-						timer.__index = -1;
-						break;
-					}
-				}
-			}
-		}
-	},	
 
 	sortAdaptions: function()
 	{
