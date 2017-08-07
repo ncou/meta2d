@@ -1,4 +1,5 @@
-import Input from "../Input"
+import { Input } from "../Input"
+import Flags from "../Flags"
 
 meta.class("meta.Renderer", 
 {
@@ -39,7 +40,7 @@ meta.class("meta.Renderer",
 		viewProto.entityBuffer = this.entities;
 		viewProto.entityBufferRemove = this.entitiesRemove;
 
-		if(meta.flags.culling) {
+		if(Flags.culling) {
 			this.culling = new meta.SparseGrid();
 		}
 

@@ -1,3 +1,6 @@
+import { Input } from "../Input"
+import Time from "../Time"
+
 meta.controller("meta.debugger",
 {
 	onFirstLoad: function()
@@ -104,15 +107,17 @@ meta.controller("meta.debugger",
 
 	onLoad: function()
 	{
-		this.timer = meta.addTimer(this, this.updateStats, 1000);
+		this.timer = Time.timer(this.updateStats, 1000)
 
-		meta.input.onMove.add(this.handleInputMove, this);
+		this.handleInputMoveFunc = this.handleInputMove.bind(this)
+
+		Input.on("move", this.handleInputMoveFunc)
+
 		meta.engine.onResize.add(this.handleResize, this);
 		meta.world.onResize.add(this.handleWorldResize, this);
 		meta.camera.onResize.add(this.handleCameraResize, this);
 		meta.camera.onMove.add(this.handleCameraMove, this);
 
-		this.handleInputMove(meta.input, 0);	
 		this.handleResize(meta.engine);
 		this.handleWorldResize(meta.world, 0);
 		this.handleCameraResize(meta.camera, 0);
@@ -122,13 +127,14 @@ meta.controller("meta.debugger",
 
 	onUnload: function()
 	{
-		meta.input.onMove.remove(this);
+		Input.off("move", this.handleInputMoveFunc)
+
 		meta.engine.onResize.remove(this);
 		meta.world.onResize.remove(this);
 		meta.camera.onResize.remove(this);
 		meta.camera.onMove.remove(this);
 
-		this.timer.stop();
+		this.timer.stop()
 	},
 
 	updateStats: function()
@@ -157,7 +163,7 @@ meta.controller("meta.debugger",
 		}
 	},
 
-	handleInputMove: function(data, event) {
+	handleInputMove(data) {
 		this.txt.world.text = "world: " + data.x + ", " + data.y;
 		this.txt.screen.text = "screen: " + data.screenX + ", " + data.screenY;
 	},

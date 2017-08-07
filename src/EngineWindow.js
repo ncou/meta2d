@@ -1,21 +1,19 @@
 import Engine from "./Engine"
 import Device from "./Device"
-import Input from "./Input"
+import { Input, KeyCode } from "./Input"
+import Flags from "./Flags"
 
 meta.engine = 
 {
 	create: function()
 	{
-		this.onCreate();
+		this.offsetLeft = 0
+		this.offsetTop = 0
 
-		this.parseFlags();
+		this.onCreate();
 
 		this._createRenderer();
 		this.printVersion()
-
-		if(this.autoMetaTags) {
-			this._addMetaTags();
-		}
 
 		// Callbacks:
 		var self = this;
@@ -87,7 +85,7 @@ meta.engine =
 			{
 				flagName = flag.substr(0, flagSepIndex).replace(/ /g, "");
 				flagValue = eval(flag.substr(flagSepIndex + 1).replace(/ /g, ""));
-				meta.flags[flagName] = flagValue;
+				Flags[flagName] = flagValue;
 			}
 		}
 	},
@@ -161,7 +159,6 @@ meta.engine =
 
 	_handleReady: function()
 	{
-		console.log('handle')
 		if(this.flags & this.Flag.READY) { return }
 
 		this.flags |= this.Flag.LOADED;
@@ -406,11 +403,11 @@ meta.engine =
 		return true;
 	},	
 
-	handleKeyDown: function(data, event) 
+	handleKeyDown(data, event) 
 	{
 		switch(data.keyCode)
 		{
-			case Input.Key.TILDE:
+			case KeyCode.TILDE:
 			{
 				meta.debug = !meta.cache.debug;
 				meta.renderer.needRender = true;
@@ -564,7 +561,7 @@ meta.engine =
 
 		this.updateImageSmoothing();
 		
-		this._updateOffset();
+		this.updateOffset()
 		this.onResize.emit(this, meta.Event.RESIZE);
 
 		meta.renderer.needRender = true;
@@ -625,39 +622,6 @@ meta.engine =
 		console.log("(Context restored)");
 	},
 
-	_addMetaTags: function()
-	{
-		if(this.metaTagsAdded) { return; }
-
-		var contentType = document.createElement("meta");
-		contentType.setAttribute("http-equiv", "Content-Type");
-		contentType.setAttribute("content", "text/html; charset=utf-8");
-		document.head.appendChild(contentType);
-
-		var encoding = document.createElement("meta");
-		encoding.setAttribute("http-equiv", "encoding");
-		encoding.setAttribute("content", "utf-8");
-		document.head.appendChild(encoding);
-
-		var content = "user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height";
-		var viewport = document.createElement("meta");
-		viewport.setAttribute("name", "viewport");
-		viewport.setAttribute("content", content);
-		document.head.appendChild(viewport);
-
-		var appleMobileCapable = document.createElement("meta");
-		appleMobileCapable.setAttribute("name", "apple-mobile-web-app-capable");
-		appleMobileCapable.setAttribute("content", "yes");
-		document.head.appendChild(appleMobileCapable);
-
-		var appleStatusBar = document.createElement("meta");
-		appleStatusBar.setAttribute("name", "apple-mobile-web-app-status-bar-style");
-		appleStatusBar.setAttribute("content", "black-translucent");
-		document.head.appendChild(appleStatusBar);
-
-		this.metaTagsAdded = true;
-	},
-
 	_createRenderer: function()
 	{
 		this.canvas = document.createElement("canvas");
@@ -676,27 +640,24 @@ meta.engine =
 		}	
 	},
 
-	_updateOffset: function()
+	updateOffset()
 	{
-		this.offsetLeft = 0;
-		this.offsetTop = 0;
+		this.offsetLeft = 0
+		this.offsetTop = 0
 
-		var element = this._container;
+		// TODO: Refactor this._container to this.parent
+		const element = this._container
 		if(element.offsetParent)
 		{
 			do {
-				this.offsetLeft += element.offsetLeft;
-				this.offsetTop += element.offsetTop;
-			} while(element = element.offsetParent);
+				this.offsetLeft += element.offsetLeft
+				this.offsetTop += element.offsetTop
+			} while(element = element.offsetParent)
 		}
 
-		var rect = this._container.getBoundingClientRect();
-		this.offsetLeft += rect.left;
-		this.offsetTop += rect.top;
-
-		rect = this.canvas.getBoundingClientRect();
-		this.offsetLeft += rect.left;
-		this.offsetTop += rect.top;		
+		let rect = this._container.getBoundingClientRect()
+		this.offsetLeft += rect.left
+		this.offsetTop += rect.top
 	},
 
 	printVersion()

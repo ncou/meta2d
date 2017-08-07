@@ -1,4 +1,5 @@
 import Device from "../Device"
+import Flags from "../Flags"
 
 meta.class("Resource.AudioManager", 
 {
@@ -6,7 +7,7 @@ meta.class("Resource.AudioManager",
 	{
 		// Audio
 		var audioProto = Resource.Sound.prototype;
-		if(Device.supports.audioAPI && meta.flags.audioAPI) 
+		if(Device.supports.audioAPI && Flags.audioAPI) 
 		{
 			this.context = new AudioContext();
 			this.gainNode = this.context.createGain();

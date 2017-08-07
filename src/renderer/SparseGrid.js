@@ -1,10 +1,10 @@
-"use strict";
+import Flags from "../Flags"
 
 meta.SparseGrid = function()
 {
 	this.cells = [];
-	this.cellWidth = meta.flags.cullingWidth || 256;
-	this.cellHeight = meta.flags.cullingHeight || 256;
+	this.cellWidth = Flags.cullingWidth || 256;
+	this.cellHeight = Flags.cullingHeight || 256;
 
 	this.startX = 0;
 	this.startY = 0;

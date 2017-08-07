@@ -1,40 +1,73 @@
 import Device from "./Device"
 import Engine from "./Engine"
 
-const BUTTON_ENUM_OFFSET = 256
 const NUM_KEYS = 256
 const NUM_INPUTS = 10
-const NUM_TOTAL_KEYS = NUM_KEYS + NUM_INPUTS + 1
+const NUM_KEYS_TOTAL = NUM_KEYS + NUM_INPUTS + 1
+const BUTTON_ENUM_OFFSET = 256
 
-const numCmdKeysPressed = 0
-const metaPressed = false
-const firstInputEvent = true
-const listeners = {}
-
-const Input = 
+class Input
 {
+	constructor()
+	{
+		this.listeners = {}
+		this.ignoreKeys = {}
+		this.cmdKeys = {}
+		this.iframeKeys = {}
+
+		this.enable = true
+		this.stickyKeys = false
+		this.metaPressed = false
+		this.firstInputEvent = true
+
+		this.inputs = new Array(NUM_KEYS_TOTAL)
+		this.touches = []
+
+		this.x = 0
+		this.y = 0
+		this.screenX = 0
+		this.screenY = 0
+		this.prevX = 0
+		this.prevY = 0
+		this.prevScreenX = 0
+		this.prevScreenY = 0
+
+		loadIgnoreKeys(this)
+		addEventListeners(this)
+
+		Device.on("visible", (value) => {
+			if(!value) {
+				this.reset()
+			}
+		})
+	}
+
 	handleKeyDown(domEvent)
 	{
-		checkIgnoreKey(domEvent)
+		this.checkIgnoreKey(domEvent)
 
 		if(!this.enable) { return }
 
 		const keyCode = domEvent.keyCode
 
-		if(this.stickyKeys && this.inputs[keyCode]) { return }
+		if(this.stickyKeys && this.inputs[keyCode]) {
+			return
+		}
 
 		if(domEvent.keyIdentifier === "Meta") {
-			metaPressed = true
+			this.metaPressed = true
 		}
-		else if(metaPressed) { return }
+		else if(this.metaPressed) {
+			return
+		}
 
 		this.inputs[keyCode] = 1
 
-		const inputEvent = new Input.Event()
+		const inputEvent = new InputEvent()
 		inputEvent.domEvent = domEvent
 		inputEvent.keyCode = keyCode
 		this.emit("keydown", inputEvent)
-	},
+	}
 
 	handleKeyUp(domEvent)
 	{
@@ -42,28 +75,29 @@ const Input =
 
 		if(!this.enable) { return }
 
-		metaPressed = false
-
 		const keyCode = domEvent.keyCode
+
+		this.metaPressed = false
 		this.inputs[keyCode] = 0
 
-		const inputEvent = new Input.Event()
+		const inputEvent = new InputEvent()
 		inputEvent.domEvent = domEvent
 		inputEvent.keyCode = keyCode
+
 		this.emit("keyup", inputEvent)
-	},
+	}
 
 	handleMouseDown(domEvent) {
 		this.handleMouseEvent("down", domEvent)
-	},
+	}
 
 	handleMouseUp(domEvent) {
 		this.handleMouseEvent("up", domEvent)
-	},
+	}
 
 	handleMouseDblClick(domEvent) {
 		this.handleMouseEvent("dblclick", domEvent)
-	},
+	}
 
 	handleMouseMove(domEvent)
 	{
@@ -72,7 +106,7 @@ const Input =
 		}
 
 		this.handleMouseEvent("move", domEvent)
-	},
+	}
 
 	handleMouseWheel(domEvent)
 	{
@@ -81,14 +115,14 @@ const Input =
 		}
 
 		this.handleMouseEvent("wheel", domEvent)
-	},
+	}
 
 	handleMouseEvent(eventType, domEvent)
 	{
 		if(!this.enable) { return }
 
-		const wnd = Engine.window
-		const camera = Engine.camera
+		const wnd = meta.engine
+		const camera = meta.camera
 
 		this.prevScreenX = this.screenX
 		this.prevScreenY = this.screenY
@@ -99,7 +133,7 @@ const Input =
 		this.x = ((this.screenX * camera.zoomRatio) + camera.x) / wnd.ratio | 0
 		this.y = ((this.screenY * camera.zoomRatio) + camera.y) / wnd.ratio | 0
 
-		const inputEvent = new Input.Event()
+		const inputEvent = new InputEvent()
 		inputEvent.domEvent = domEvent
 		inputEvent.screenX = this.screenX
 		inputEvent.screenY = this.screenY
@@ -118,7 +152,7 @@ const Input =
 				if(this.firstInputEvent) {
 					inputEvent.deltaX = 0
 					inputEvent.deltaY = 0
-					firstInputEvent = false
+					this.firstInputEvent = false
 				}
 				else {
 					inputEvent.deltaX = (this.prevScreenX - this.screenX) * camera.zoomRatio / wnd.ratio
@@ -130,10 +164,10 @@ const Input =
 
 			case "move":
 			{
-				if(firstInputEvent) {
+				if(this.firstInputEvent) {
 					inputEvent.deltaX = 0
 					inputEvent.deltaY = 0
-					firstInputEvent = false
+					this.firstInputEvent = false
 				}
 				else {
 					inputEvent.deltaX = -domEvent.movementX * camera.zoomRatio / wnd.ratio
@@ -152,19 +186,19 @@ const Input =
 		}
 
 		this.emit(eventType, inputEvent)
-	},
+	}
 
 	handleTouchDown(domEvent) {
 		this.handleTouchEvent(domEvent, "down")
-	},
+	}
 
 	handleTouchUp(domEvent) {
 		this.handleTouchEvent(domEvent, "up")
-	},
+	}
 
 	handleTouchMove(domEvent) {
 		this.handleTouchEvent(domEvent, "move")
-	},
+	}
 
 	handleTouchEvent(domEvent, eventType)
 	{
@@ -173,7 +207,7 @@ const Input =
 		}
 
 		const wnd = Engine.window
-		const camera = Engine.camera
+		const camera = meta.camera
 
 		const changedTouches = domEvent.changedTouches
 		for(let n = 0; n < changedTouches.length; n++)
@@ -206,7 +240,7 @@ const Input =
 
 			const keyCode = id + BUTTON_ENUM_OFFSET
 
-			const inputEvent = new Input.Event()
+			const inputEvent = new InputEvent()
 			inputEvent.domEvent = domEvent
 			inputEvent.screenX = screenX
 			inputEvent.screenY = screenY
@@ -225,10 +259,10 @@ const Input =
 				this.screenX = screenX
 				this.screenY = screenY
 
-				if(firstInputEvent) {
+				if(this.firstInputEvent) {
 					inputEvent.deltaX = 0
 					inputEvent.deltaY = 0
-					firstInputEvent = false
+					this.firstInputEvent = false
 				}
 				else {
 					inputEvent.deltaX = this.prevScreenX - this.screenX
@@ -248,11 +282,44 @@ const Input =
 
 			this.emit(eventType, inputEvent)
 		}
-	},
+	}
 
 	pressed(keyCode) {
 		return this.inputs[keyCode]
-	},
+	}
+
+	on(event, func)
+	{
+		const buffer = this.listeners[event]
+		if(buffer) {
+			buffer.push(func)
+		}
+		else {
+			this.listeners[event] = [ func]
+		}
+	}
+
+	off(event, func)
+	{
+		const buffer = this.listeners[event]
+		if(!buffer) { return }
+
+		const index = buffer.indexOf(func)
+		if(index === -1) { return }
+
+		buffer[index] = buffer[buffer.length - 1]
+		buffer.pop()
+	}
+
+	emit(event, arg)
+	{
+		const buffer = this.listeners[event]
+		if(!buffer) { return }
+
+		for(let n = 0; n < buffer.length; n++) {
+			buffer[n](arg)
+		}
+	}
 
 	reset()
 	{
@@ -263,9 +330,10 @@ const Input =
 
 			this.inputs[n] = 0
 
-			const inputEvent = new Input.Event()
+			const inputEvent = new InputEvent()
 			inputEvent.domEvent = domEvent
 			inputEvent.keyCode = keyCode
+
 			this.emit("keyup", inputEvent)
 		}
 
@@ -275,9 +343,10 @@ const Input =
 			const keyCode = n + BUTTON_ENUM_OFFSET
 			if(!this.inputs[keyCode]) { continue }
 
-			const inputEvent = new Input.Event()
+			const inputEvent = new InputEvent()
 			inputEvent.domEvent = domEvent
 			inputEvent.keyCode = keyCode
+
 			this.emit("up", inputEvent)
 		}
 
@@ -286,15 +355,16 @@ const Input =
 		{
 			if(!this.touches[n]) { continue }
 
-			const keyCode = n + Input.BUTTON_ENUM_OFFSET
+			const keyCode = n + BUTTON_ENUM_OFFSET
 			if(!this.inputs[keyCode]) { continue }
 
-			const inputEvent = new Input.Event()
+			const inputEvent = new InputEvent()
 			inputEvent.domEvent = domEvent
 			inputEvent.keyCode = keyCode
+
 			this.emit("up", inputEvent)
 		}
-	},
+	}
 
 	getTouchID(eventTouchID)
 	{
@@ -306,7 +376,7 @@ const Input =
 		}
 
 		return -1
-	},
+	}
 
 	checkIgnoreKey(domEvent)
 	{
@@ -318,81 +388,102 @@ const Input =
 				domEvent.preventDefault()
 			}
 
-			if(Input.cmdKeys[keyCode] !== undefined) {
-				numCmdKeysPressed++
+			if(this.cmdKeys[keyCode] !== undefined) {
+				this.numCmdKeysPressed++
 			}
 
-			if(Input.ignoreKeys[keyCode] !== undefined && numCmdKeysPressed <= 0) {
+			if(this.ignoreKeys[keyCode] !== undefined && this.numCmdKeysPressed <= 0) {
 				domEvent.preventDefault()
 			}
 		}
-	},
+	}
 
-	on(event, func) 
+	set ignoreFKeys(flag)
 	{
-		const buffer = listeners[event]
-		if(buffer) {
-			buffer.push(func)
+		if(flag) {
+			ignoreFKeys(this, 1)
 		}
 		else {
-			listeners[event] = [ func ]
+			ignoreFKeys(this, 0)
 		}
-	},
+	}
 
-	off(event, func)
-	{
-		const buffer = listeners[event]
-		if(!buffer) { return }
-
-		const index = listeners.indexOf(func)
-		if(index !== -1) { return }
-
-		listeners[index] = listeners[listeners.length - 1]
-		listeners.pop()
-	},
-
-	emit(event, arg)
-	{
-		const buffer = listeners[event]
-		if(!buffer) { return }
-
-		for(let n = 0; n < buffer.length; n++) {
-			buffer(event, arg)
-		}
-	},
-
-	//
-	inputs: new Array(NUM_TOTAL_KEYS),
-	touches: [],
-	ignoreKeys: {},
-	cmdKeys: {},
-	iframeKeys: {},
-
-	x: 0,
-	y: 0,
-	screenX: 0,
-	screenY: 0,
-	prevX: 0,
-	prevY: 0,
-	prevScreenX: 0,
-	prevScreenY: 0,
-
-	enable: true,
-	stickyKeys: false
+	get ignoreFKeys() {
+		return !!this.ignoreKeys[112]
+	}
 }
 
-Input.Event = function() {
-	this.domEvent = null
-	this.x = 0
-	this.y = 0
-	this.deltaX = 0
-	this.deltaY = 0
-	this.screenX = 0
-	this.screenY = 0
-	this.keyCode = 0
+const addEventListeners = function(input)
+{
+	window.addEventListener("mouseup", input.handleMouseUp.bind(input))
+	window.addEventListener("mousemove", input.handleMouseMove.bind(input))
+	window.addEventListener("mousewheel", input.handleMouseWheel.bind(input))
+	window.addEventListener("mousedown", input.handleMouseDown.bind(input))
+	window.addEventListener("dblclick", input.handleMouseDblClick.bind(input))
+	window.addEventListener("touchstart", input.handleTouchDown.bind(input))
+	window.addEventListener("touchend", input.handleTouchUp.bind(input))
+	window.addEventListener("touchmove", input.handleTouchMove.bind(input))
+	window.addEventListener("touchcancel", input.handleTouchUp.bind(input))
+	window.addEventListener("touchleave", input.handleTouchUp.bind(input))
+
+	if(Device.supports.onkeydown)	{
+		window.addEventListener("keydown", input.handleKeyDown.bind(input))
+	}
+
+	if(Device.supports.onkeyup)	{
+		window.addEventListener("keyup", input.handleKeyUp.bind(input))
+	}
 }
 
-Input.Key = {
+const loadIgnoreKeys = function(input)
+{
+	input.ignoreKeys = {}
+	input.ignoreKeys[8] = 1
+	input.ignoreKeys[9] = 1
+	input.ignoreKeys[13] = 1
+	input.ignoreKeys[17] = 1
+	input.ignoreKeys[91] = 1
+	input.ignoreKeys[38] = 1
+	input.ignoreKeys[39] = 1
+	input.ignoreKeys[40] = 1
+	input.ignoreKeys[37] = 1
+	input.ignoreKeys[124] = 1
+	input.ignoreKeys[125] = 1
+	input.ignoreKeys[126] = 1
+
+	input.cmdKeys[91] = 1
+	input.cmdKeys[17] = 1
+
+	input.iframeKeys[37] = 1
+	input.iframeKeys[38] = 1
+	input.iframeKeys[39] = 1
+	input.iframeKeys[40] = 1
+}
+
+const ignoreFKeys = function(input, value)
+{
+	for(let n = 112; n <= 123; n++) {
+		input.ignoreKeys[n] = value
+	}
+}
+
+class InputEvent
+{
+	constructor() {
+		this.domEvent = null
+		this.x = 0
+		this.y = 0
+		this.deltaX = 0
+		this.deltaY = 0
+		this.screenX = 0
+		this.screenY = 0
+		this.keyCode = 0
+	}
+}
+
+const instance = new Input()
+
+const KeyCode = {
 	BACKSPACE: 8,
 	TAB: 9,
 	ENTER: 13,
@@ -482,60 +573,8 @@ Input.Key = {
 	BUTTON_RIGHT: BUTTON_ENUM_OFFSET + 2
 }
 
-const addEventListeners = function()
-{
-	window.addEventListener("mousedown", Input.handleMouseDown.bind(Input))
-	window.addEventListener("mouseup", Input.handleMouseUp.bind(Input))
-	window.addEventListener("mousemove", Input.handleMouseMove.bind(Input))
-	window.addEventListener("mousewheel", Input.handleMouseWheel.bind(Input))
-	window.addEventListener("dblclick", Input.handleMouseDblClick.bind(Input))
-	window.addEventListener("touchstart", Input.handleTouchDown.bind(Input))
-	window.addEventListener("touchend", Input.handleTouchUp.bind(Input))
-	window.addEventListener("touchmove", Input.handleTouchMove.bind(Input))
-	window.addEventListener("touchcancel", Input.handleTouchUp.bind(Input))
-	window.addEventListener("touchleave", Input.handleTouchUp.bind(Input))
-
-	if(Device.supports.onkeydown)	{
-		window.addEventListener("keydown", Input.handleKeyDown.bind(Input))
-	}
-
-	if(Device.supports.onkeyup)	{
-		window.addEventListener("keyup", Input.handleKeyUp.bind(Input))
-	}
+export {
+	instance as Input,
+	InputEvent,
+	KeyCode
 }
-
-const loadIgnoreKeys = function()
-{
-	Input.ignoreKeys = {}
-	Input.ignoreKeys[8] = 1
-	Input.ignoreKeys[9] = 1
-	Input.ignoreKeys[13] = 1
-	Input.ignoreKeys[17] = 1
-	Input.ignoreKeys[91] = 1
-	Input.ignoreKeys[38] = 1
-	Input.ignoreKeys[39] = 1
-	Input.ignoreKeys[40] = 1
-	Input.ignoreKeys[37] = 1
-	Input.ignoreKeys[124] = 1
-	Input.ignoreKeys[125] = 1
-	Input.ignoreKeys[126] = 1
-
-	Input.cmdKeys[91] = 1
-	Input.cmdKeys[17] = 1
-
-	Input.iframeKeys[37] = 1
-	Input.iframeKeys[38] = 1
-	Input.iframeKeys[39] = 1
-	Input.iframeKeys[40] = 1
-}
-
-loadIgnoreKeys()
-addEventListeners()
-
-Device.on("visible", (value) => {
-	if(!value) {
-		Input.reset()
-	}
-})
-
-export default Input

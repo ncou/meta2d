@@ -17,12 +17,6 @@ window.meta =
 	loading: null,
 	preloading: null,
 
-	flags: {
-		webGL: true,
-		audioAPI: true,
-		culling: true
-	},
-
 	time: {
 		delta: 0,
 		deltaF: 0,

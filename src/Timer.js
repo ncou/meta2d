@@ -1,106 +1,106 @@
-"use strict";
 
-meta.Timer = function(owner, func, tDelta, numTimes)
+let timerId = 0
+
+class Timer
 {
-	this.owner = owner;
-	this.id = meta.cache.timerIndex++;
-	this.func = func;
-	this.onRemove = null;
-
-	this.tDelta = tDelta;
-
-	this.numTimes = numTimes;
-	if(this.numTimes === void(0)) {
-		this.numTimes = -1;
-	}
-	this.initNumTimes = this.numTimes;
-
-	this.tAccumulator = 0.0;
-	this.tStart = Date.now();
-
-	this.__index = -1;
-};
-
-meta.Timer.prototype =
-{
-	play: function() 
+	constructor(time, func, tDelta, numTimes)
 	{
-		if(this.__index !== -1) { return; }
+		this.time = time
+		this.id = timerId++
+		this.func = func
+		this.tDelta = tDelta
+		this.numTimes = (numTimes !== undefined) ? numTimes : -1
+		this.initNumTimes = this.numTimes
+		this.onDone = null
 
-		this.__index = meta.engine.timers.push(this) - 1;
-	},
+		this.tAccumulator = 0.0
+		this.tStart = Date.now()
+		this.paused = false
 
-	/** Remove timer. */
-	stop: function() 
-	{
-		if(this.__index === -1) { return; }
-
-		meta.engine.timersRemove.push(this);
-		this.__index = -1;
-	},
-
-	/** Pause timer. */
-	pause: function() {
-		this.paused = true;
-	},
-
-	/** Resume timer. */
-	resume: function() {
-		this.paused = false;
-		this.tStart = Date.now();
-	},
-
-	/** Reset timer. */
-	reset: function() {
-		this.tAccumulator = 0;
-		this.numTimes = this.initNumTimes;
-		this.paused = false;
-		this.play();
-	},
-
-	//
-	onRemove: null,
-	paused: false
-};
-
-/**
- * Create a new timer.
- * @param owner {Object} Owner of the timer.
- * @param func {Function} Callback function.
- * @param tDelta {Number} Time between timer update in milliseconds.
- * @param numTimes {Number=} Number of repeats. By default it will be forever.
- * @returns {meta.Timer} Timer object.
- */
-meta.createTimer = function(owner, func, tDelta, numTimes)
-{
-	if(typeof(owner) === "function") {
-		numTimes = tDelta;
-		tDelta = func;
-		func = owner;
-		owner = window;
-	} 
-
-	if(!func) {
-		console.warn("(meta.addTimer) Invalid function passed");
-		return;
+		this.__index = -1
 	}
 
-	var newTimer = new meta.Timer(owner, func, tDelta, numTimes);
-	return newTimer;
-};
+	play()
+	{
+		if(this.__index !== -1) { return }
 
-/**
- * Add a new timer.
- * @param owner {Object} Owner of the timer.
- * @param func {Function} Callback function.
- * @param tDelta {Number} Time between timer update in milliseconds.
- * @param numTimes {Number=} Number of repeats. By default it will be forever.
- * @returns {meta.Timer} Timer object.
- */
-meta.addTimer = function(owner, func, tDelta, numTimes)
-{
-	var newTimer = meta.createTimer(owner, func, tDelta, numTimes);
-	newTimer.play();
+		this.__index = this.time.timers.push(this) - 1
+	}
 
-	return newTimer;
-};
+	_stop()
+	{
+		if(this.__index === -1) { return }
+		if(this.updating) {
+			this.time.timersRemove.push(this)
+		}
+		else
+		{
+			const timers = this.time.timers
+			const timer = timers[timers.length - 1]
+			timer.__index = this.__index
+			timers[this.__index] = timer
+			timers.pop()
+		}
+
+		this.__index = -1
+	}
+
+	stop()
+	{
+		this._stop()
+		this.paused = false
+		this.numTimes = 0
+
+		if(this.onDone) {
+			this.onDone(this)
+		}
+	}
+
+	pause()
+	{
+		this._stop()
+		this.paused = true
+	}
+
+	resume()
+	{
+		if(!this.paused) { return }
+
+		this.paused = false
+		this.tStart = Date.now()
+	}
+
+	reset()
+	{
+		this.tAccumulator = 0
+		this.numTimes = this.initNumTimes
+		this.paused = false
+		this.play()
+	}
+
+	update(tDelta)
+	{
+		this.tAccumulator += tDelta
+
+		while(this.tAccumulator >= this.tDelta)
+		{
+			this.tAccumulator -= this.tDelta
+
+			if(this.numTimes !== 0) {
+				this.func(this)
+			}
+
+			this.tStart += this.tDelta
+
+			if(this.numTimes !== -1)
+			{
+				this.numTimes--
+				if(this.numTimes <= 0) {
+					this.stop()
+				}
+			}
+		}
+	}
+}
+
+export default Timer

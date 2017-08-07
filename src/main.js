@@ -1,5 +1,6 @@
 import "./meta";
 import "./Class";
+import "./Flags"
 import Engine from "./Engine"
 import "./EngineWindow";
 import Device from "./Device"
@@ -10,10 +11,11 @@ import "./View";
 import "./Camera";
 import "./World";
 import "./Controller";
-import "./Timer";
+import Timer from "./Timer"
+import Time from "./Time"
 import "./Enum";
 import "./Macros";
-import Input from "./Input"
+import { Input, InputEvent, KeyCode } from "./Input"
 import "./utils/Ajax";
 import "./utils/Tokenizer";
 import "./math/Math";
@@ -112,6 +114,10 @@ export default {
 	Engine, 
 	Device,
 	Input,
+	InputEvent,
+	KeyCode,
+	Timer,
+	Time,
 	Tab, 
 	Text, 
 	Button 
