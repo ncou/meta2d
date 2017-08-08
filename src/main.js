@@ -15,7 +15,7 @@ import Timer from "./Timer"
 import Time from "./Time"
 import "./Enum";
 import "./Macros";
-import { Input, InputEvent, KeyCode } from "./Input"
+import Input from "./Input"
 import "./utils/Ajax";
 import "./utils/Tokenizer";
 import "./math/Math";
@@ -25,15 +25,9 @@ import "./math/AABBext";
 import "./math/Circle";
 import "./math/Matrix4";
 import "./math/Random";
-import "./resource/Enum";
-import "./resource/Resource.Manager.js";
-import "./resource/Resource.AudioManager.js";
-import "./resource/Resource.Basic.js";
-import "./resource/Resource.Texture.js";
-import "./resource/Resource.Sound.js";
-import "./resource/Resource.SpriteSheet.js";
-import "./resource/Resource.Font.js";
-import "./resource/Resource.SVG.js";
+import Resources from "./resources/Resources"
+import Resource from "./resources/Resource"
+import Texture from "./resources/Texture"
 import "./entity/Enum";
 import "./entity/Entity.Geometry.js";
 import "./entity/Entity.Text.js";
@@ -114,10 +108,11 @@ export default {
 	Engine, 
 	Device,
 	Input,
-	InputEvent,
-	KeyCode,
 	Timer,
 	Time,
+	Resources,
+	Resource,
+	Texture,
 	Tab, 
 	Text, 
 	Button 

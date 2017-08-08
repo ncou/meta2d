@@ -1,22 +1,5 @@
-"use strict";
+import Input from "./Input"
 
-/**
- * Class for managing viewable region.
- * @class
- * @property [x=0] {Number} Setter/Getter. Camera left coordinate on X axis.
- * @property [y=0] {Number} Setter/Getter. Camera top coordinate on Y axis.
- * @property volume {meta.math.AdvAABB} Volume of viewable region.
- * @property [zoom=1.0] {Number} Setter/Getter. Current zoom value.
- * @property [zoomRatio=1.0] {Number} Ratio of how smaller or larger is current view compared to default zoom (zoom = 1.0).
- * @property [enableBorderIgnore=true] {Boolean} Setter/Getter. Flag to enable camera movement past world borders.
- * @property [draggable=false] {Boolean} Setter/Getter. Flag to enable draggable.
- * @property [enableCentering=false] {Boolean} Setter/Getter. Flag to enable to move camera to the center as initial position.
- * @property [enableCenteringX=false] {Boolean} Setter/Getter. Flag to enable camera centering on X axis.
- * @property [enableCenteringY=false] {Boolean} Setter/Getter. Flag to enable camera centering on Y axis.
- * @property [enableAutoZoom=false] {Boolean} Setter/Getter. Flag to enable auto zooming that will set zoom so all world is visible.
- * @property [enableAutoZoomX=false] {Boolean} Setter/Getter. Flag to enable auto zoom on width.
- * @property [enableAutoZoomY=false] {Boolean} Setter/Getter. Flag to enable auto zoom on height.
- */
 meta.Camera = function()
 {
 	this.volume = new meta.math.AABBext(0, 0, 0, 0);
@@ -38,6 +21,10 @@ meta.Camera = function()
 	this._worldBounds = false;
 
 	this._followEntity = null;
+
+	this.handleDownFunc = null
+	this.handleUpFunc = null
+	this.handleMoveFunc = null
 
 	//
 	this.onResize = meta.createChannel(meta.Event.CAMERA_RESIZE);
@@ -204,25 +191,20 @@ meta.Camera.prototype =
 		this.updateView();
 	},
 
-	_onInput: function(data, event)
-	{
-		var inputEvent = Input.Event;
+	handleInputDown(event) {
+		if(event.keyCode === Input.KeyCode.BUTTON_LEFT) {
+			this._startDrag(event)
+		}
+	},
 
-		if(event === inputEvent.MOVE) {
-			this._drag(data);
+	handleInputUp(event) {
+		if(event.keyCode === Input.KeyCode.BUTTON_LEFT) {
+			this._endDrag(event)
 		}
-		else if(event === inputEvent.DOWN)
-		{
-			if(data.keyCode === Input.Key.BUTTON_LEFT) {
-				this._startDrag(data);
-			}
-		}
-		else if(event === inputEvent.UP)
-		{
-			if(data.keyCode === Input.Key.BUTTON_LEFT) {
-				this._endDrag(data);
-			}
-		}
+	},
+
+	handleInputMove(event) {
+		this._drag(event)
 	},
 
 	_onResize: function(data, event)
@@ -252,8 +234,8 @@ meta.Camera.prototype =
 		if(!this._dragging) { return; }
 
 		var scope = meta;
-		var diffX = (data.screenX - data.prevScreenX) * this.zoomRatio;
-		var diffY = (data.screenY - data.prevScreenY) * this.zoomRatio;
+		var diffX = -data.deltaX * this.zoomRatio;
+		var diffY = -data.deltaY * this.zoomRatio;
 
 		this._moved = true;
 
@@ -353,22 +335,28 @@ meta.Camera.prototype =
 
 	set draggable(value)
 	{
-		if(this._draggable === value) { return; }
-
-		this._draggable = value;
-
-		var events = [ Input.Event.DOWN, Input.Event.UP, Input.Event.MOVE ];
+		if(this._draggable === value) { return }
+		this._draggable = value
+		this._dragging = false
 
 		if(value) {
-			meta.subscribe(events, this._onInput, this);
+			this.handleInputDownFunc = this.handleInputDown.bind(this)
+			this.handleInputUpFunc = this.handleInputUp.bind(this)
+			this.handleInputMoveFunc = this.handleInputMove.bind(this)
+			Input.on("down", this.handleInputDownFunc)
+			Input.on("up", this.handleInputUpFunc)
+			Input.on("move", this.handleInputMoveFunc)
 		}
 		else {
-			meta.unsubscribe(events, this);
-			this._dragging = false;
+			Input.off("down", this.handleInputDownFunc)
+			Input.off("up", this.handleInputUpFunc)
+			Input.off("move", this.handleInputMoveFunc)
 		}
 	},
 
-	get draggable() { return this._draggable; },
+	get draggable() { 
+		return this._draggable 
+	},
 
 	set autoZoom(value) 
 	{

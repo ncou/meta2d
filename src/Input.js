@@ -10,6 +10,8 @@ class Input
 {
 	constructor()
 	{
+		this.KeyCode = null
+
 		this.listeners = {}
 		this.ignoreKeys = {}
 		this.cmdKeys = {}
@@ -295,7 +297,7 @@ class Input
 			buffer.push(func)
 		}
 		else {
-			this.listeners[event] = [ func]
+			this.listeners[event] = [ func ]
 		}
 	}
 
@@ -483,7 +485,7 @@ class InputEvent
 
 const instance = new Input()
 
-const KeyCode = {
+instance.KeyCode = {
 	BACKSPACE: 8,
 	TAB: 9,
 	ENTER: 13,
@@ -573,8 +575,4 @@ const KeyCode = {
 	BUTTON_RIGHT: BUTTON_ENUM_OFFSET + 2
 }
 
-export {
-	instance as Input,
-	InputEvent,
-	KeyCode
-}
+export default instance

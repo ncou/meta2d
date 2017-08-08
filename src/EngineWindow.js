@@ -1,7 +1,8 @@
 import Engine from "./Engine"
 import Device from "./Device"
-import { Input, KeyCode } from "./Input"
+import Input from "./Input"
 import Time from "./Time"
+import Resources from "./resources/Resources"
 import Flags from "./Flags"
 
 meta.engine = 
@@ -43,14 +44,12 @@ meta.engine =
 		}
 
 		meta.camera = new meta.Camera();
-		meta.world = new meta.World(0, 0);
-		meta.resources = new Resource.Manager();
+		meta.world = new meta.World(0, 0)
 		meta.physics = new Physics.Manager();
 		meta.steering = new Steering.Manager();
 
-		var resources = meta.resources;
-		resources.onLoadingStart.add(this.onLoadingStart, this);
-		resources.onLoadingEnd.add(this.onLoadingEnd, this);
+		Resources.on("loadingStart", this.onLoadingStart.bind(this))
+		Resources.on("loadingEnd", this.onLoadingStart.bind(this))
 
 		this._initAll();
 	},
@@ -70,25 +69,6 @@ meta.engine =
 		}	
 		
 		this._container.style.cssText = this.elementStyle;
-	},
-
-	parseFlags: function()
-	{
-		var flag, flagName, flagValue, flagSepIndex;
-		var flags = window.location.hash.substr(1).split(",")
-		var num = flags.length;
-
-		for(var n = 0; n < num; n++) 
-		{
-			flag = flags[n];
-			flagSepIndex = flag.indexOf("=");
-			if(flagSepIndex > 0)
-			{
-				flagName = flag.substr(0, flagSepIndex).replace(/ /g, "");
-				flagValue = eval(flag.substr(flagSepIndex + 1).replace(/ /g, ""));
-				Flags[flagName] = flagValue;
-			}
-		}
 	},
 
 	_initAll: function()
@@ -133,6 +113,7 @@ meta.engine =
 	_handlePreload()
 	{
 		this.meta.renderer.load();
+
 		Input.on("keydown", this.handleKeyDown.bind(this))
 
 		var cache = meta.cache;
@@ -142,8 +123,8 @@ meta.engine =
 		
 		this._startMainLoop();
 
-		if(!meta.resources.loading) {
-			this._handleLoad();
+		if(!Resources.loading) {
+			this._handleLoad()
 		}
 	},
 
@@ -153,8 +134,8 @@ meta.engine =
 
 		var cache = meta.cache;
 
-		if(!meta.resources.loading) {
-			this._handleReady();
+		if(!Resources.loading) {
+			this._handleReady()
 		}
 	},
 
@@ -188,7 +169,7 @@ meta.engine =
 		if(this.flags & this.Flag.READY)
 		{
 			num = this.controllersReady.length;
-			if(num > 0 && !this.meta.resources.loading) 
+			if(num > 0 && !Resources.loading) 
 			{
 				var controller;
 				for(n = 0; n < this.controllersReady.length; n++) {
@@ -218,131 +199,29 @@ meta.engine =
 		}
 
 		if(Engine.update) {
-			Engine.update(this.time.deltaF)
+			Engine.update(Time.deltaF)
 		}
 		
 		this.meta.renderer.update(tDelta);
 		this.meta.camera.update(tDelta);
 	},
 
-	render: function()
+	render()
 	{
-		this.time.frameIndex++;
-
 		Time.start()
 
-		var tNow = Date.now();
+		this.update(Time.deltaF)
 
-		// Calculate tDelta:
-		if(this.time.pause) {
-			this.time.delta = 0;
-			this.time.deltaF = 0;
-		}
-		else 
-		{
-			this.time.delta = tNow - this.time.current;
-			if(this.time.delta > this.time.maxDelta) {
-				this.time.delta = this.time.maxDelta;
-			}
-
-			this.time.delta *= this.time.scale;
-			this.time.deltaF = this.time.delta / 1000;
-
-			this.time.accumulator += this.time.delta;			
-		}
-
-		// Update FPS:
-		if(tNow - this.time.fps >= 1000) {
-			this.time.fps = tNow;
-			this.fps = this._fpsCounter;
-			this._fpsCounter = 0;
-		}
-
-		this.update(this.time.deltaF);
-
-		// Process all render functions:
-		meta.renderer.render(this.time.deltaF);
+		meta.renderer.render(Time.deltaF)
 
 		if(Engine.render) {
 			Engine.render(this.time.deltaF)
 		}
-		
-		var num = this.renderFuncs.length;
-		for(var n = 0; n < num; n++) {
-			this.renderFuncs[n](this.time.tDeltaF);
-		}	
-
-		this._fpsCounter++;
-		this.time.current = tNow;
 
 		Time.end()
 
-		requestAnimationFrame(this._renderLoop);
+		requestAnimationFrame(this._renderLoop)
 	},
-
-	sortAdaptions: function()
-	{
-		var scope = meta;
-		var resolutions = scope.cache.resolutions;
-		if(!resolutions) { return; }
-
-		var numResolutions = resolutions.length;
-		if(numResolutions <= 1) { return; }
-
-		resolutions.sort(function(a, b) {
-			var length_a = scope.math.length2(a.width, a.height);
-			var length_b = scope.math.length2(b.width, b.height);
-			return length_a - length_b;
-		});
-
-		var lowestResolution = resolutions[0];
-		var reso, prevReso;
-		for(var i = 1; i < numResolutions; i++) {
-			prevReso = resolutions[i - 1];
-			reso = resolutions[i];
-			reso.unitSize = (reso.height / lowestResolution.height);
-			reso.zoomThreshold = prevReso.unitSize + ((reso.unitSize - prevReso.unitSize) / 100) * 33;
-		}
-
-		meta.maxUnitSize = resolutions[numResolutions - 1].unitSize;
-		meta.maxUnitRatio = 1.0 / meta.maxUnitSize;
-
-		scope.camera.bounds(lowestResolution.width, lowestResolution.height);		
-	},
-
-	adaptResolution: function()
-	{
-		var scope = meta;
-		var resolutions = scope.cache.resolutions;
-		if(!resolutions) { return false; }
-
-		var numResolutions = resolutions.length;
-		if(numResolutions < 1) { return false; }
-
-		var resolution;
-		var newResolution = resolutions[0];
-		var zoom = scope.camera.zoom;
-
-		for(var i = numResolutions - 1; i >= 0; i--) 
-		{
-			resolution = resolutions[i];
-			if(zoom >= resolution.zoomThreshold) {
-				newResolution = resolution;
-				break;
-			}
-		}		
-
-		if(newResolution === scope.cache.currResolution) {
-			return true;
-		}
-
-		scope.cache.currResolution = newResolution;
-		scope.unitSize = newResolution.unitSize;	
-		scope.unitRatio = 1.0 / scope.unitSize;	
-		this.onAdapt.emit(newResolution, meta.Event.ADAPT);
-
-		return true;
-	},	
 
 	handleKeyDown(data, event) 
 	{
@@ -714,13 +593,6 @@ meta.engine =
 	},
 
 	get center() { return this._center; },
-
-	set adapt(value) {
-		this._adapt = value;
-		this.updateResolution();
-	},
-
-	get adapt() { return this._adapt; },
 
 	Flag: {
 		LOADING: 1,

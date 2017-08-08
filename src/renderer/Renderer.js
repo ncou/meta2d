@@ -1,4 +1,4 @@
-import { Input } from "../Input"
+import Input from "../Input"
 import Flags from "../Flags"
 
 meta.class("meta.Renderer", 
